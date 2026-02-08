@@ -27,14 +27,9 @@ public struct FormCraftControllerView<
         content($field.value)
         .onAppear {
             formConfig.fields[keyPath: key].mounted = true
-            formConfig.registerField(
-                key: key,
-                name: formConfig.fields[keyPath: key].name
-            )
         }
         .onDisappear {
             formConfig.fields[keyPath: key].mounted = false
-            formConfig.unregisterField(key: key)
         }
         .onChange(of: field.value) {
             if field.isDirty == false && field.value != field.defaultValue {

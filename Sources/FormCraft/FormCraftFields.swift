@@ -21,26 +21,26 @@ public struct FormCraftFailure: Sendable {
 
 @MainActor
 public protocol FormCraftFields {
-    func refine(form: FormCraft<Self>) async -> [FormCraft<Self>.Key: FormCraftValidationResponse<Sendable>]
+    func getAccessNames() -> [String: PartialKeyPath<Self>]
+    func refine(form: FormCraft<Self>) async -> [FormCraft<Self>.Key: FormCraftFailure?]
 }
 
 public extension FormCraftFields {
-    func refine(form: FormCraft<Self>) async -> [FormCraft<Self>.Key: FormCraftValidationResponse<Sendable>] {
+    func refine(form: FormCraft<Self>) async -> [FormCraft<Self>.Key: FormCraftFailure?] {
         [:]
     }
 }
 
 @MainActor
-public protocol FormCraftFieldConfigurable: Observable, AnyObject {
+public protocol FormCraftFieldConfigurable: Observable, AnyObject, Sendable {
     associatedtype Value: Equatable & Sendable
     associatedtype ValidatedValue: Sendable
 
-    var name: String { get }
     var value: Value { get set }
     var validatedValue: ValidatedValue? { get }
-    var defaultValue: Value { get }
+    var defaultValue: Value { get set }
     var mounted: Bool { get set }
-    var errors: FormCraftFailure? { get }
+    var errors: FormCraftFailure? { get set }
     var isValidation: Bool { get }
     var isDirty: Bool { get set }
     var delayValidation: FormCraftDelayValidation { get }
@@ -53,9 +53,9 @@ public enum FormCraftValidationResponse<Value: Sendable> {
     case success(value: Value)
     case failure(errors: FormCraftFailure)
 
-    public var errors: [LocalizedStringResource]? {
+    public var errors: FormCraftFailure? {
         if case .failure(let failure) = self {
-            return failure.errors
+            return failure
         }
 
         return nil
@@ -95,7 +95,6 @@ public enum FormCraftDelayValidation {
 
 @Observable
 public final class FormCraftField<Value: Equatable & Sendable, ValidatedValue: Sendable>: FormCraftFieldConfigurable {
-    public let name: String
     public var value: Value
     public var validatedValue: ValidatedValue? = nil
     public var defaultValue: Value
@@ -109,12 +108,10 @@ public final class FormCraftField<Value: Equatable & Sendable, ValidatedValue: S
     private var taskValidation: Task<Bool, Never>? = nil
 
     public init(
-        name: String,
         value: Value,
         delayValidation: FormCraftDelayValidation = .immediate,
         rule: @escaping (_ value: Value) async -> FormCraftValidationResponse<ValidatedValue>
     ) {
-        self.name = name
         self.value = value
         self.defaultValue = value
         self.delayValidation = delayValidation
