@@ -41,12 +41,13 @@ public protocol FormCraftFieldConfigurable: Observable, AnyObject, Sendable {
     var defaultValue: Value { get set }
     var mounted: Bool { get set }
     var errors: FormCraftFailure? { get set }
-    var isValidation: Bool { get }
+    var isValidation: Bool { get set }
+    var taskValidation: Task<Void, Never>? { get set }
     var isDirty: Bool { get set }
     var delayValidation: FormCraftDelayValidation { get }
     var rule: (_ value: Value) async -> FormCraftValidationResponse<ValidatedValue> { get }
 
-    func validate() async -> Bool
+    func validate() async -> FormCraftFailure?
 }
 
 public enum FormCraftValidationResponse<Value: Sendable> {
@@ -101,11 +102,10 @@ public final class FormCraftField<Value: Equatable & Sendable, ValidatedValue: S
     public var mounted: Bool = false
     public var errors: FormCraftFailure? = nil
     public var isValidation: Bool = false
+    public var taskValidation: Task<Void, Never>? = nil
     public var isDirty: Bool = false
     public let delayValidation: FormCraftDelayValidation
     public let rule: (_ value: Value) async -> FormCraftValidationResponse<ValidatedValue>
-
-    private var taskValidation: Task<Bool, Never>? = nil
 
     public init(
         value: Value,
@@ -118,42 +118,20 @@ public final class FormCraftField<Value: Equatable & Sendable, ValidatedValue: S
         self.rule = rule
     }
 
-    public func validate() async -> Bool {
-        taskValidation?.cancel()
+    public func validate() async -> FormCraftFailure? {
+        let validationResponse = await rule(value)
 
-        let task = Task { () -> Bool in
-            isValidation = true
+        switch validationResponse {
+        case .success(let validatedValue):
+            self.validatedValue = validatedValue
+            self.isValidation = false
 
-            if delayValidation.seconds > 0 {
-                try? await Task.sleep(for: .seconds(delayValidation.seconds))
+            return nil
 
-                if Task.isCancelled {
-                    return false
-                }
-            }
+        case .failure(let failure):
+            self.isValidation = false
 
-            let validationResponse = await rule(value)
-
-            if Task.isCancelled {
-                return false
-            }
-
-            switch validationResponse {
-            case .success(let validatedValue):
-                self.validatedValue = validatedValue
-                self.errors = nil
-                self.isValidation = false
-                return true
-
-            case .failure(let failure):
-                self.errors = failure
-                self.isValidation = false
-                return false
-            }
+            return failure
         }
-
-        taskValidation = task
-
-        return await task.value
     }
 }

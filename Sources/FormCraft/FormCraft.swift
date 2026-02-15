@@ -10,7 +10,6 @@ public protocol FormCraftConfig: Observable, AnyObject {
     typealias Key = PartialKeyPath<Fields>
 
     var fields: Fields { get set }
-    var registeredFields: [Name] { get set }
     var formState: FormCraftFormState { get set }
 
     func setErrors(errors: [Key: FormCraftFailure])
@@ -20,6 +19,7 @@ public protocol FormCraftConfig: Observable, AnyObject {
     func setDefaultValues<Field: FormCraftFieldConfigurable>(
         values: [WritableKeyPath<Fields, Field>: Field.Value]
     )
+    func validateField(key: Key) async -> Bool
     func validateFields() async -> Bool
     func handleSubmit(onSuccess: @escaping (_ data: FormCraftValidatedFields<Fields>) async -> Void) -> () -> Void
 }
@@ -42,18 +42,18 @@ public struct FormCraftSetValueConfig {
 
 @dynamicMemberLookup @MainActor
 public struct FormCraftValidatedFields<Fields> {
-    private let fields: Fields
+    private let underlyingFields: Fields
 
     public init(
         fields: Fields
     ) {
-        self.fields = fields
+        self.underlyingFields = fields
     }
 
     public subscript<Field: FormCraftFieldConfigurable>(
-        dynamicMember keyPath: KeyPath<Fields, Field>
+        dynamicMember fieldKeyPath: KeyPath<Fields, Field>
     ) -> Field.ValidatedValue {
-        fields[keyPath: keyPath].validatedValue!
+        underlyingFields[keyPath: fieldKeyPath].validatedValue!
     }
 }
 
@@ -63,7 +63,6 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
     public typealias Key = PartialKeyPath<Fields>
 
     public var fields: Fields
-    public var registeredFields: [Name] = []
     public var formState = FormCraftFormState(
         isSubmitting: false
     )
@@ -123,24 +122,110 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
         }
     }
 
-    public func validateFields() async -> Bool {
-        let fieldsToValidate = fields.getAccessNames().compactMap { (_, key) in
-            fields[keyPath: key] as? any FormCraftFieldConfigurable
+    public func validateField(key: Key) async -> Bool {
+        guard let field = fields[keyPath: key] as? FormCraftFieldConfigurable else {
+            return true
         }
 
-        return await withTaskGroup(of: Bool.self) { group in
-            for field in fieldsToValidate {
-                group.addTask {
-                    await field.validate()
+        field.taskValidation?.cancel()
+
+        let task = Task {
+            field.isValidation = true
+
+            if field.delayValidation.seconds > 0 {
+                try? await Task.sleep(for: .seconds(field.delayValidation.seconds))
+
+                if Task.isCancelled {
+                    return
                 }
             }
 
-            var allValid = true
-            for await isValid in group where !isValid {
-                allValid = false
+            async let asyncFieldValidated = field.validate()
+            let refineValidated = await fields.refine(form: self)
+            let fieldValidated = await asyncFieldValidated
+
+            if Task.isCancelled {
+                return
             }
-            return allValid
+
+            field.errors = fieldValidated
+
+            refineValidated.forEach {
+                guard let field = fields[keyPath: $0.key] as? FormCraftFieldConfigurable else {
+                    return
+                }
+
+                if $0.key == key, let errors = field.errors {
+//                    errors.errors += $0.value?.errors ?? []
+
+                    return
+                }
+
+//                field.
+            }
         }
+
+        field.taskValidation = task
+
+        await task.value
+
+//        async let fieldValidated = field.validate()
+//        async let refineValidated = fields.refine(form: self)
+
+
+        return true
+    }
+
+    public func validateFields() async -> Bool {
+        let fieldsByName = fields.getAccessNames().flatMap { (name, key) in
+            [name: fields[keyPath: key] as? any FormCraftFieldConfigurable]
+        }
+
+        clearErrors()
+
+        async let asyncPerFieldValidationFailures = withTaskGroup(of: [Name: FormCraftFailure?].self) { group in
+            for (name, field) in fieldsByName {
+                group.addTask {
+                    let failure = await field?.validate()
+
+                    return [name: failure]
+                }
+            }
+
+            var collected: [Name: FormCraftFailure?] = [:]
+            for await partial in group {
+                collected.merge(partial, uniquingKeysWith: { _, new in new })
+            }
+
+            return collected.compactMapValues { $0 }
+        }
+
+        let refineFailuresByKeyPath: [Key: FormCraftFailure] = await fields
+            .refine(form: self)
+            .compactMapValues { $0 }
+
+        let perFieldValidationFailures = await asyncPerFieldValidationFailures 
+
+        var failuresByKeyPath: [Key: FormCraftFailure] = Dictionary(
+            uniqueKeysWithValues: perFieldValidationFailures.compactMap { name, failure in
+                guard let keyPath = fields.getAccessNames()[name] else { return nil }
+
+                return (keyPath, failure)
+            }
+        )
+
+        failuresByKeyPath.merge(
+            refineFailuresByKeyPath,
+            uniquingKeysWith: { lhs, rhs in .init(lhs.errors + rhs.errors) }
+        )
+
+        failuresByKeyPath.forEach { keyPath, failure in
+            guard let field = fields[keyPath: keyPath] as? any FormCraftFieldConfigurable else { return }
+
+            field.errors = failure
+        }
+
+        return perFieldValidationFailures.isEmpty
     }
 
     public func handleSubmit(
