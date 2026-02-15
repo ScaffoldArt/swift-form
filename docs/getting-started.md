@@ -1,37 +1,42 @@
 # Getting Started
 
-## 📦 Installation
+## Installation
 
-> [!NOTE]
-> FormCraft is distributed via **Swift Package Manager (SPM)**.  
-> Supported platforms: **iOS 16.0+**, **Xcode 14.0+**, **Swift 5.9+**
+FormCraft is distributed via Swift Package Manager.
 
-### 🔹 Adding with Xcode
+Supported platforms:
+- iOS 17+
+- macOS 13+
 
-1. Open your project in Xcode.  
-2. Go to **File → Add Package Dependencies…**  
-3. Paste the repository URL:  
-   ```
-   https://github.com/ArtyCodingart/form-craft
-   ```  
-4. Confirm and add **FormCraft** to your app target.
+### Add with Xcode
 
-### 🔹 Using SwiftPM CLI
+1. Open your project in Xcode.
+2. Go to `File -> Add Package Dependencies...`
+3. Paste:
 
-For projects managed entirely with SwiftPM, you can add FormCraft from the terminal:
-
-```sh
-swift package add-dependency https://github.com/ArtyCodingart/form-craft
+```txt
+https://github.com/ArtyCodingart/form-craft
 ```
 
-## Create your first form
+4. Add `FormCraft` to your app target.
+
+### Add with `Package.swift`
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/ArtyCodingart/form-craft", from: "x.y.z")
+]
+```
+
+## First Form
 
 ```swift
 import SwiftUI
 import FormCraft
 
-private struct LoginFormFields: FormCraftFields {
-    var login = FormCraftField(name: "login", value: "") { value in
+@FormCraft
+private struct LoginFields: FormCraftFields {
+    var email = FormCraftField(value: "", delayValidation: .fast) { value in
         await FormCraftValidationRules()
             .string()
             .trimmed()
@@ -40,48 +45,60 @@ private struct LoginFormFields: FormCraftFields {
             .validate(value: value)
     }
 
-    var password = FormCraftField(name: "password", value: "") { value in
+    var password = FormCraftField(value: "") { value in
         await FormCraftValidationRules()
             .string()
             .trimmed()
             .notEmpty()
+            .min(min: 8)
             .validate(value: value)
     }
 }
 
 struct LoginFormView: View {
-    @StateObject private var loginForm = FormCraft(fields: LoginFormFields())
-
-    private func handleLogin(
-        fields: FormCraftValidatedFields<LoginFormFields>
-    ) async {
-        print(fields.login)
-        print(fields.password)
-    }
+    @State private var form = FormCraft(fields: LoginFields())
 
     var body: some View {
-        FormCraftView(formConfig: loginForm) {
-            FormCraftControllerView(
-                formConfig: loginForm,
-                key: \.login
-            ) { field in
-                TextField("Email", text: field.$value)
-                    .textFieldStyle(.roundedBorder)
-                Text(field.error)
+        VStack(spacing: 12) {
+            FormCraftView(formConfig: form) {
+                FormCraftControllerView(formConfig: form, key: \.email) { value in
+                    TextField("Email", text: value)
+                        .textFieldStyle(.roundedBorder)
+                }
+
+                if let firstError = form.fields.email.errors?.errors.first {
+                    Text(firstError)
+                        .foregroundStyle(.red)
+                }
+
+                FormCraftControllerView(formConfig: form, key: \.password) { value in
+                    SecureField("Password", text: value)
+                        .textFieldStyle(.roundedBorder)
+                }
+
+                if let firstError = form.fields.password.errors?.errors.first {
+                    Text(firstError)
+                        .foregroundStyle(.red)
+                }
             }
 
-            FormCraftControllerView(
-                formConfig: loginForm,
-                key: \.password
-            ) { field in
-                TextField("Email", text: field.$value)
-                    .textFieldStyle(.roundedBorder)
-                Text(field.error)
-            }
+            Button(
+                "Login",
+                action: form.handleSubmit { fields in
+                    // fields.email and fields.password are validated values
+                    print(fields.email)
+                    print(fields.password)
+                }
+            )
+            .disabled(form.formState.isSubmitting)
         }
-
-        Button("Login", action: loginForm.handleSubmit(onSuccess: handleLogin))
-            .disabled(loginForm.formState.isSubmitting)
+        .padding()
     }
 }
 ```
+
+## Next Steps
+
+- Learn the built-in validators in `overview.md`
+- Add cross-field checks with `refine(form:)`
+- Customize error messages with `FormCraftLocalizations`

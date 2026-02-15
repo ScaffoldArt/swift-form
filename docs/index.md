@@ -4,7 +4,7 @@ layout: home
 
 hero:
   name: "Form Craft"
-  tagline: "Build better forms with a simple and flexible validation library for SwiftUI"
+  tagline: "Build type-safe SwiftUI forms with composable validation."
   actions:
     - theme: brand
       text: Getting Started
@@ -18,15 +18,15 @@ hero:
 
 features:
   - icon: ✨
-    title: Build smart forms. Faster.
-    details: Stop fighting with manual checks. Declare your fields once — get validation, debounced updates, async support, and type-safe output instantly. No boilerplate. Just clean SwiftUI.
+    title: Type-safe form data, by default.
+    details: Define fields once and submit strongly typed, validated values. FormCraft helps you move from raw input to trusted data without manual casting or fragile plumbing.
   - icon: ⚡️
-    title: Validate everything. Instantly.
-    details: Async checks? No problem. Everything runs off the main thread and Sendable safety. Your UI stays smooth. Always.
+    title: Field rules + cross-field refine.
+    details: Combine per-field validation with form-level refinement for real-world scenarios like password confirmation, dependent fields, and business constraints.
   - icon: 📦
-    title: A rich set of built-in rules.
-    details: FormCraft comes with a wide selection of ready-to-use validation rules — all chainable, clear, and type-safe. Define logic like .string().required().min(2) and get back a fully validated, correctly typed value.
+    title: SwiftUI-native developer experience.
+    details: Built for modern SwiftUI with observable form state, binding-friendly controllers, async validation support, and an API that stays predictable as forms grow.
   - icon: 🏗️
-    title: Flexible by design.
-    details: Create anything from simple forms to complex validation flows. FormCraft supports custom validation rules, full i18n for multilingual apps, and works seamlessly with any custom SwiftUI components.
+    title: Composable today, extensible tomorrow.
+    details: Start with built-in chainable rules, then add custom validators, localization, and reusable patterns. The architecture is designed to scale with your product and your team.
 ---
