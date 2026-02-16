@@ -26,6 +26,15 @@ public struct FormCraft: MemberMacro {
 
        for member in members {
            if let variable = member.decl.as(VariableDeclSyntax.self) {
+               let isStaticOrClass = variable.modifiers.contains { modifier in
+                   let tokenKind = modifier.name.tokenKind
+                   return tokenKind == .keyword(.static) || tokenKind == .keyword(.class)
+               }
+
+               if isStaticOrClass {
+                   continue
+               }
+
                for binding in variable.bindings {
                    if let identifier = binding.pattern.as(IdentifierPatternSyntax.self) {
                        propertyNames.append(identifier.identifier.text)

@@ -163,24 +163,30 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
     }
 
     public func validateFields() async -> Bool {
-        let fieldsByName = fields.getAccessNames().flatMap { (name, key) in
-            [name: fields[keyPath: key]]
+        let accessNames = fields.getAccessNames()
+        let fieldsByName = Dictionary(
+            uniqueKeysWithValues: accessNames.map { (name, keyPath) in
+                (name, fields[keyPath: keyPath])
+            }
+        )
+
+        fieldsByName.values.forEach { field in
+            field.taskValidation?.cancel()
+            field.taskValidation = nil
         }
 
         clearErrors()
 
-        async let asyncPerFieldValidationFailures = withTaskGroup(of: [Name: FormCraftFailure?].self) { group in
+        async let asyncPerFieldValidationFailures = withTaskGroup(of: (Name, FormCraftFailure?).self) { group in
             for (name, field) in fieldsByName {
                 group.addTask {
-                    let failure = await field.validate()
-
-                    return [name: failure]
+                    (name, await field.validate())
                 }
             }
 
             var collected: [Name: FormCraftFailure?] = [:]
-            for await partial in group {
-                collected.merge(partial, uniquingKeysWith: { _, new in new })
+            for await (name, failure) in group {
+                collected[name] = failure
             }
 
             return collected.compactMapValues { $0 }
@@ -194,7 +200,7 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
 
         var failuresByKeyPath: [Key: FormCraftFailure] = Dictionary(
             uniqueKeysWithValues: perFieldValidationFailures.compactMap { name, failure in
-                guard let keyPath = fields.getAccessNames()[name] else { return nil }
+                guard let keyPath = accessNames[name] else { return nil }
 
                 return (keyPath, failure)
             }
@@ -211,7 +217,7 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
             field.errors = failure
         }
 
-        return perFieldValidationFailures.isEmpty
+        return failuresByKeyPath.isEmpty
     }
 
     public func handleSubmit(
