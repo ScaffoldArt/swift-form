@@ -30,7 +30,7 @@ public extension FormCraftValidationRules {
             case .success:
                 return .success(value: (repeat (each results).value))
             case .failure(let failure):
-                errors += failure.errors
+                errors += failure.messages
             }
         }
 

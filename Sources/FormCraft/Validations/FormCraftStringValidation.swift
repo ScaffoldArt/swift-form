@@ -72,7 +72,7 @@ public struct FormCraftStringValidation: FormCraftValidationTypeRules {
         message: LocalizedStringResource? = nil
     ) -> Self {
         addRule { value in
-            let pattern = /^[0-9a-z]+$/
+            let pattern = /^[a-z][a-z0-9]{23,}$/
             let isMatch = (try? pattern.wholeMatch(in: value)) != nil
 
             guard isMatch else {
@@ -131,7 +131,7 @@ public struct FormCraftStringValidation: FormCraftValidationTypeRules {
         message: LocalizedStringResource? = nil
     ) -> Self {
         addRule { value in
-            let pattern = /^[a-z0-9_-]{21}$/
+            let pattern = /^[A-Za-z0-9_-]{21}$/
             let isMatch = (try? pattern.wholeMatch(in: value)) != nil
 
             guard isMatch else {

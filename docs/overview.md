@@ -1,46 +1,63 @@
 # Overview
 
-FormCraft is a powerful form validation toolkit built for SwiftUI — inspired by Zod and React Hook Form, but tailored for the Swift ecosystem.
+FormCraft is a SwiftUI-first form validation library focused on type-safe data, composable rules, and predictable form state.
 
-Whether you're building a simple login screen or a complex enterprise-grade form with async rules, FormCraft provides the structure, type safety, and control you've been missing in native SwiftUI.
+It gives you one consistent model for:
+- field-level validation
+- cross-field validation with `refine(form:)`
+- async validation flows
+- validated output on submit
 
-## 🚀 Why FormCraft?
+## Why FormCraft
 
-SwiftUI is modern — but writing forms in it is still a mess:
+SwiftUI forms usually become hard to maintain when validation grows:
 
-- Too much `@State` and `@Binding` juggling
-- Manual validation logic scattered everywhere
-- No built-in support for async validation
-- Error-prone and hard to test
+- validation logic gets spread across views
+- cross-field rules become ad-hoc
+- async checks add race conditions
+- submit handlers receive raw, partially trusted input
 
-FormCraft solves that — cleanly, declaratively, and with **zero boilerplate**.
+FormCraft centralizes this into a single form model.
 
-## 🧠 Key Features
+## Core Building Blocks
 
-- **🧱 Minimal API, maximal control**  
-  Define your fields and rules — FormCraft takes care of registration, state, and validation.
+- `FormCraftFields`  
+  Your typed schema of fields, plus optional `refine(form:)` for form-level rules.
 
-- **⚡️ Parallel async validation**  
-  Each field validates concurrently using `Task`, without blocking the main thread.
+- `FormCraftField<Value, ValidatedValue>`  
+  A field with raw value, validation state, and async rule.
 
-- **🔒 Type-safe validation rules**  
-  Chain `.string().required().min(2)` and let the compiler ensure correctness.
+- `FormCraft<Fields>`  
+  Form controller that runs validation, manages errors, and handles submit.
 
-- **🧠 Modular logic**  
-  Use field-level rules or `refine()` to validate across multiple fields.
+- `FormCraftControllerView`  
+  Connects SwiftUI inputs to a field using typed bindings.
 
-- **🔁 Built-in debounced validation**  
-  No need to manage timers — FormCraft prevents over-validation out of the box.
+- `FormCraftValidationRules`  
+  Chainable, type-specific validators (`string`, `integer`, `decimal`, `boolean`, `customType`, `optional`, `union`).
 
-- **🌍 Multi-platform**  
-  Works great on iOS, macOS, and visionOS.
+## Key Capabilities
 
-## 💡 How it works
+- **Type-safe validated output**  
+  Submit with `FormCraftValidatedFields` instead of handling unchecked raw values.
 
-FormCraft uses an internal form controller under the hood that automatically tracks field registration, validation tasks, and current error states.
+- **Composable validation model**  
+  Combine per-field rules with `refine(form:)` for domain constraints.
 
-Each field connects to the form through context (`EnvironmentObject`) and can trigger or listen to validations without manual wiring.
+- **Async-ready flow**  
+  Validation rules are async by default, so server-backed checks fit naturally.
 
-On submit, FormCraft provides you with already validated and transformed data — ready to be used or sent to a server.
+- **Built-in validation timing control**  
+  Fields can define delay behavior via `FormCraftDelayValidation`.
+
+- **Localization-friendly errors**  
+  Error messages are built around `LocalizedStringResource` with customizable `FormCraftLocalizations`.
+
+## How Data Flows
+
+1. Define fields and rules in a `FormCraftFields` type.
+2. Bind UI controls with `FormCraftControllerView`.
+3. Validate per field or entire form.
+4. Submit with `handleSubmit`, receiving validated typed data.
 
 ---
