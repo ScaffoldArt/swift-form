@@ -128,7 +128,6 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
         let field = fields[keyPath: key]
 
         field.taskValidation?.cancel()
-        field.errors = nil
 
         let task = Task {
             if field.delayValidation.seconds > 0 {
@@ -148,6 +147,8 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
 
             if let fieldValidated {
                 field.errors = fieldValidated
+            } else {
+                field.errors = nil
             }
         }
 
@@ -202,7 +203,7 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
 
         failuresByKeyPath.merge(
             refineFailuresByKeyPath,
-            uniquingKeysWith: { lhs, rhs in .init(lhs.errors + rhs.errors) }
+            uniquingKeysWith: { lhs, rhs in .init(lhs.messages + rhs.messages) }
         )
 
         failuresByKeyPath.forEach { keyPath, failure in

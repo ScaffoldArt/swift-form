@@ -8,14 +8,14 @@
 import SwiftUI
 
 public struct FormCraftFailure: Sendable {
-    public let errors: [LocalizedStringResource]
+    public let messages: [LocalizedStringResource]
 
     public init(_ errors: [LocalizedStringResource]) {
-        self.errors = errors
+        self.messages = errors
     }
 
     public init(_ errors: [String]) {
-        self.errors = errors.map { .init(stringLiteral: $0) }
+        self.messages = errors.map { .init(stringLiteral: $0) }
     }
 }
 

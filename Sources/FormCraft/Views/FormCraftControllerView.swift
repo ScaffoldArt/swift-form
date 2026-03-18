@@ -8,13 +8,13 @@ public struct FormCraftControllerView<
     public typealias Value = FormField.Value
 
     @Bindable var formConfig: FormConfig
-    private let content: (_ value: Binding<Value>) -> Content
+    private let content: (_ value: Binding<Value>, _ formField: FormField) -> Content
     private let key: WritableKeyPath<FormConfig.Fields, FormField>
 
     public init(
         formConfig: FormConfig,
         key: WritableKeyPath<FormConfig.Fields, FormField>,
-        @ViewBuilder content: @escaping (_ value: Binding<Value>) -> Content
+        @ViewBuilder content: @escaping (_ value: Binding<Value>, _ formField: FormField) -> Content
     ) {
         self.formConfig = formConfig
         self.content = content
@@ -24,7 +24,7 @@ public struct FormCraftControllerView<
     public var body: some View {
         @Bindable var field = formConfig.fields[keyPath: key]
 
-        content($field.value)
+        content($field.value, formConfig.fields[keyPath: key])
         .onAppear {
             formConfig.fields[keyPath: key].mounted = true
         }
