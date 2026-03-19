@@ -21,11 +21,19 @@ public struct FormCraftFailure: Sendable {
 
 @MainActor
 public protocol FormCraftFields {
-    func getAccessNames() -> [String: KeyPath<Self, any FormCraftFieldConfigurable>]
+    func getAccessNames() -> [String: PartialKeyPath<Self>]
     func refine(form: FormCraft<Self>) async -> [PartialKeyPath<Self>: FormCraftFailure?]
 }
 
 public extension FormCraftFields {
+    func getField(by keyPath: PartialKeyPath<Self>) -> any FormCraftFieldConfigurable {
+        guard let field = self[keyPath: keyPath] as? any FormCraftFieldConfigurable else {
+            preconditionFailure("FormCraft: keyPath does not reference a FormCraftFieldConfigurable field.")
+        }
+
+        return field
+    }
+
     func refine(form: FormCraft<Self>) async -> [PartialKeyPath<Self>: FormCraftFailure?] {
         [:]
     }

@@ -1,6 +1,6 @@
 import SwiftUI
 
-@attached(member, names: named(getAccessNames))
+@attached(member, names: named(getAccessNames), named(_formCraftAccessNamesCache))
 public macro FormCraft() = #externalMacro(module: "FormCraftMacros", type: "FormCraft")
 
 @MainActor
@@ -81,7 +81,7 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
                 return
             }
 
-            fields[keyPath: fieldKey].errors = .init(error.value.compactMap { .init($0) })
+            fields.getField(by: fieldKey).errors = .init(error.value.compactMap { .init($0) })
         }
     }
 
@@ -93,7 +93,7 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
 
     public func clearErrors() {
         fields.getAccessNames().forEach { _, fieldKey in
-            fields[keyPath: fieldKey].errors = nil
+            fields.getField(by: fieldKey).errors = nil
         }
     }
 
@@ -163,7 +163,7 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
         let accessNames = fields.getAccessNames()
         let fieldsByName = Dictionary(
             uniqueKeysWithValues: accessNames.map { (name, keyPath) in
-                (name, fields[keyPath: keyPath])
+                (name, fields.getField(by: keyPath))
             }
         )
 
@@ -207,11 +207,7 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
         )
 
         failuresByKeyPath.forEach { keyPath, failure in
-            guard let field = fields[keyPath: keyPath] as? FormCraftFieldConfigurable else {
-                return
-            }
-
-            field.errors = failure
+            fields.getField(by: keyPath).errors = failure
         }
 
         return failuresByKeyPath.isEmpty

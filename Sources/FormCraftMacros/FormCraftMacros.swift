@@ -47,9 +47,26 @@ public struct FormCraft: MemberMacro {
 
        return [
            """
-           func getAccessNames() -> [String: KeyPath<\(raw: structName), any FormCraftFieldConfigurable>] {
+           private static var _formCraftAccessNamesCache: [String: PartialKeyPath<\(raw: structName)>]?
+
+           func getAccessNames() -> [String: PartialKeyPath<\(raw: structName)>] {
+               if let cache = Self._formCraftAccessNamesCache {
+                   return cache
+               }
+
                let all: [String: PartialKeyPath<\(raw: structName)>] = [\(raw: mapperString)]
-               return all.compactMapValues { $0 as? KeyPath<\(raw: structName), any FormCraftFieldConfigurable> }
+               let filtered: [String: PartialKeyPath<\(raw: structName)>] = Dictionary(
+                   uniqueKeysWithValues: all.compactMap { (name, keyPath) -> (String, PartialKeyPath<\(raw: structName)>)? in
+                       guard self[keyPath: keyPath] is any FormCraftFieldConfigurable else {
+                           return nil
+                       }
+
+                       return (name, keyPath)
+                   }
+               )
+
+               Self._formCraftAccessNamesCache = filtered
+               return filtered
            }
            """
        ]
