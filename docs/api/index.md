@@ -1,6 +1,6 @@
 # API
 
-- [FormCraft](/api/formcraft)
+- [FormCraft](/api/formCraft)
 - [FormCraftFields](/api/formCraftFields)
 - [FormCraftField](/api/formCraftField)
 - [FormCraftView](/api/formCraftView)

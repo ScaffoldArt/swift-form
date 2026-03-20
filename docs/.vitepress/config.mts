@@ -32,7 +32,7 @@ export default defineConfig({
       {
         text: 'API',
         items: [
-          { text: 'FormCraft', link: '/api/formcraft' },
+          { text: 'FormCraft', link: '/api/formCraft' },
           { text: 'FormCraftFields', link: '/api/formCraftFields' },
           { text: 'FormCraftField', link: '/api/formCraftField' },
           { text: 'FormCraftView', link: '/api/formCraftView' },
