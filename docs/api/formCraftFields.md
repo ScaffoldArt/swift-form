@@ -1,6 +1,6 @@
 # FormCraftFields <Badge type="tip" text="Protocol" />
 
-`FormCraftFields` defines a form schema used by [`FormCraft`](/api/formCraft).
+`FormCraftFields` defines a form schema used by [`FormCraft`](/api/formcraft).
 Your fields type should conform to this protocol.
 
 In practice, you usually annotate your fields struct with `@FormCraft`, and the required access methods are generated automatically.
