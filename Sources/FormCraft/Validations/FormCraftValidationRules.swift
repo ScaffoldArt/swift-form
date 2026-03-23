@@ -20,7 +20,14 @@ public extension FormCraftValidationTypeRules {
                 return .failure(errors: .init([localizations.required]))
             }
 
-            return .failure(errors: .init([.invalidType(String(describing: Value.self), "\(type(of: raw))")]))
+            return .failure(
+                errors: .init([
+                    localizations.invalidType(
+                        String(describing: Value.self),
+                        String(describing: type(of: raw!))
+                    )
+                ])
+            )
         }
 
         return await validate(value: typed)

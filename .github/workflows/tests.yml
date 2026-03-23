@@ -1,4 +1,4 @@
-name: Tests
+name: Swift Tests
 
 on:
   push:
@@ -8,20 +8,8 @@ on:
 
 jobs:
   test:
-    runs-on: macos-15
+    runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode.app
-
-      - name: Show Xcode version
-        run: xcodebuild -version
-
-      - name: Run tests
-        run: |
-          xcodebuild test \
-            -scheme FormCraft \
-            -destination 'platform=macOS' \
-            -resultBundlePath TestResults.xcresult
+      - run: swift test

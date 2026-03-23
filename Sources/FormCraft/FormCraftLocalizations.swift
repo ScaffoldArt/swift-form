@@ -41,6 +41,7 @@ public struct FormCraftLocalizations {
     public var includes: (String) -> LocalizedStringResource
     public var uppercase: LocalizedStringResource
     public var lowercase: LocalizedStringResource
+    public var invalidType: (String, String) -> LocalizedStringResource
 
     public init(
         required: LocalizedStringResource? = nil,
@@ -75,40 +76,48 @@ public struct FormCraftLocalizations {
         endsWith: ((String) -> LocalizedStringResource)? = nil,
         includes: ((String) -> LocalizedStringResource)? = nil,
         uppercase: LocalizedStringResource? = nil,
-        lowercase: LocalizedStringResource? = nil
+        lowercase: LocalizedStringResource? = nil,
+        invalidType: ((String, String) -> LocalizedStringResource)? = nil
     ) {
-        self.required = required ?? .required
-        self.gt = gt ?? { .gt($0) }
-        self.gte = gte ?? { .gte($0) }
-        self.lt = lt ?? { .lt($0) }
-        self.lte = lte ?? { .lte($0) }
-        self.positive = positive ?? .positive
-        self.nonNegative = nonNegative ?? .nonNegative
-        self.negative = negative ?? .negative
-        self.nonPositive = nonPositive ?? .nonPositive
-        self.multipleOf = multipleOf ?? { .multipleOf($0) }
-        self.trimmed = trimmed ?? .trimmed
-        self.cuid = cuid ?? .cuid
-        self.cuid2 = cuid2 ?? .cuid2
-        self.ulid = ulid ?? .ulid
-        self.uuid = uuid ?? .uuid
-        self.nanoId = nanoId ?? .nanoId
-        self.ipv4 = ipv4 ?? .ipv4
-        self.ipv6 = ipv6 ?? .ipv6
-        self.cidrv4 = cidrv4 ?? .cidrv4
-        self.cidrv6 = cidrv6 ?? .cidrv6
-        self.isoDate = isoDate ?? .isoDate
-        self.email = email ?? .email
-        self.e164phoneNumber = e164phoneNumber ?? .e164PhoneNumber
-        self.regex = regex ?? .regex
-        self.equals = equals ?? { .equals($0, $1) }
-        self.minLength = minLength ?? { .minLength($0) }
-        self.maxLength = maxLength ?? { .maxLength($0) }
-        self.length = length ?? { .length($0) }
-        self.startsWith = startsWith ?? { .startsWith($0) }
-        self.endsWith = endsWith ?? { .endsWith($0) }
-        self.includes = includes ?? { .includes($0) }
-        self.uppercase = uppercase ?? .uppercase 
-        self.lowercase = lowercase ?? .lowercase
+        self.required = required ?? l10n("required")
+        self.gt = gt ?? { l10n("gt \($0)") }
+        self.gte = gte ?? { l10n("gte \($0)") }
+        self.lt = lt ?? { l10n("lt \($0)") }
+        self.lte = lte ?? { l10n("lte \($0)") }
+        self.positive = positive ?? l10n("positive")
+        self.nonNegative = nonNegative ?? l10n("nonNegative")
+        self.negative = negative ?? l10n("negative")
+        self.nonPositive = nonPositive ?? l10n("nonPositive")
+        self.multipleOf = multipleOf ?? { l10n("multipleOf \($0)") }
+        self.trimmed = trimmed ?? l10n("trimmed")
+        self.cuid = cuid ?? l10n("cuid")
+        self.cuid2 = cuid2 ?? l10n("cuid2")
+        self.ulid = ulid ?? l10n("ulid")
+        self.uuid = uuid ?? l10n("uuid")
+        self.nanoId = nanoId ?? l10n("nanoId")
+        self.ipv4 = ipv4 ?? l10n("ipv4")
+        self.ipv6 = ipv6 ?? l10n("ipv6")
+        self.cidrv4 = cidrv4 ?? l10n("cidrv4")
+        self.cidrv6 = cidrv6 ?? l10n("cidrv6")
+        self.isoDate = isoDate ?? l10n("isoDate")
+        self.email = email ?? l10n("email")
+        self.e164phoneNumber = e164phoneNumber ?? l10n("e164PhoneNumber")
+        self.regex = regex ?? l10n("regex")
+        self.equals = equals ?? { l10n("equals \($0) \($1)") }
+        self.minLength = minLength ?? { l10n("minLength \($0)") }
+        self.maxLength = maxLength ?? { l10n("maxLength \($0)") }
+        self.length = length ?? { l10n("length \($0)") }
+        self.startsWith = startsWith ?? { l10n("startsWith \($0)") }
+        self.endsWith = endsWith ?? { l10n("endsWith \($0)") }
+        self.includes = includes ?? { l10n("includes \($0)") }
+        self.uppercase = uppercase ?? l10n("uppercase")
+        self.lowercase = lowercase ?? l10n("lowercase")
+        self.invalidType = invalidType ?? { expected, actual in
+            l10n("invalidType \(expected) \(actual)")
+        }
     }
+}
+
+private func l10n(_ key: String.LocalizationValue) -> LocalizedStringResource {
+    LocalizedStringResource(key, bundle: .module)
 }
