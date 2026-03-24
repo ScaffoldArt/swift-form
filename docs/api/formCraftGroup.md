@@ -1,6 +1,6 @@
 # FormCraftGroup <Badge type="tip" text="Protocol" />
 
-::: danger Important
+::: warning
 `FormCraftGroup` must be declared inside a struct annotated with `@FormCraft`.
 :::
 
@@ -148,13 +148,4 @@ struct CheckoutView: View {
         .padding()
     }
 }
-```
-
-## Requirements
-
-`FormCraftGroup` has no required methods or properties.
-
-```swift
-@MainActor
-public protocol FormCraftGroup {}
 ```
