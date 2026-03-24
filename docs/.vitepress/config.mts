@@ -34,6 +34,7 @@ export default defineConfig({
         items: [
           { text: 'FormCraft', link: '/api/formcraft' },
           { text: 'FormCraftFields', link: '/api/formCraftFields' },
+          { text: 'FormCraftGroup', link: '/api/formCraftGroup' },
           { text: 'FormCraftField', link: '/api/formCraftField' },
           { text: 'FormCraftView', link: '/api/formCraftView' },
           { text: 'FormCraftControllerView', link: '/api/formCraftControllerView' }
