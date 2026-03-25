@@ -1,45 +1,109 @@
 # Overview
 
-FormCraft helps you build SwiftUI forms with reliable validation, clear submit handling, and predictable behavior.
+FormCraft is often described as a practical validation-first library for SwiftUI forms. In more technical terms, it gives you a single model for collecting raw input, validating it (including async and cross-field rules), and submitting typed trusted data.
 
-It provides one unified model for:
-- field-level validation
-- cross-field validation via `refine(form:)`
-- async validation flows
-- typed validated data on submit and more
+## Motivation
 
-## Why FormCraft
+Most SwiftUI projects do not have one opinionated, end-to-end form pipeline. Because of that, teams usually mix local `@State`, view-level checks, and ad-hoc submit handlers.
 
-As forms grow, validation logic often gets scattered across views, and submit handlers start receiving raw input.
-FormCraft keeps validation and submit flow in one place.
+That approach works at first, but form logic quickly becomes fragmented.
 
-## Core Building Blocks
+Unlike regular client state, form state has special challenges:
 
-- `@FormCraft + FormCraftFields`
-You define a fields container and automatically get field mapping/order used by the form engine.
-- `FormCraftField<Value, ValidatedValue>`
-Stores a raw value, field state, and an async validation rule.
-- `FormCraft<Fields>`
-Runs validation, tracks focus/submitting state, and handles submit.
-- `FormCraftControllerView`
-Binds SwiftUI controls to a field value and triggers field-level validation.
-- `FormCraftValidationRules`
-Provides chainable validators for `string`, `integer`, `decimal`, `boolean`, and custom types.
+- You start with raw user input, but business logic needs validated typed values.
+- Validation can be synchronous and asynchronous.
+- Field-level rules and cross-field rules must work together.
+- Errors must be user-friendly and localization-ready.
+- Submit should run only when all fields are valid.
 
-## Key Capabilities
+As forms grow, even more problems appear:
 
-- Type-safe validated output through `FormCraftValidatedFields`.
-- Field-level and form-level (`refine`) validation in a single pipeline.
-- Async validation by default.
-- Configurable field validation delay via `FormCraftDelayValidation`.
-- Localization-friendly errors via `LocalizedStringResource` and `FormCraftLocalizations`.
+- Duplicated validation logic across screens
+- Inconsistent error handling and messaging
+- Race conditions during async checks
+- Hard-to-test submit flows
+- Refactors that break field wiring
+- Unclear ownership of "where validation really lives"
 
-## How Data Flows
+If that sounds familiar, you are not doing anything wrong. Form handling is hard when there is no consistent system behind it.
 
-1. Define fields and rules in a `@FormCraft` `FormCraftFields` struct.
-2. Create `FormCraft(fields:)`.
-3. Bind inputs via `FormCraftControllerView`.
-4. Field validation runs when values change.
-5. On submit, `handleSubmit` validates all fields and, if data is valid, calls `onSuccess` with the typed validated values defined by your validation rules.
+FormCraft gives you that system. It works well with SwiftUI out of the box and scales from simple login forms to complex product flows.
 
----
+FormCraft helps you:
+
+- Replace scattered form code with a consistent typed flow
+- Keep validation rules close to field definitions
+- Run field-level and form-level validation in one pipeline
+- Improve UX with predictable submit behavior
+- Ship faster with less form-related regressions
+
+Enough talk, show me some code already.
+
+```swift
+import SwiftUI
+import FormCraft
+
+@FormCraft
+private struct LoginFields: FormCraftFields {
+    var email = FormCraftField(value: "") { value in
+        await FormCraftValidationRules()
+            .string()
+            .trimmed()
+            .notEmpty()
+            .email()
+            .validate(value: value)
+    }
+
+    var password = FormCraftField(value: "") { value in
+        await FormCraftValidationRules()
+            .string()
+            .trimmed()
+            .notEmpty()
+            .min(min: 8)
+            .validate(value: value)
+    }
+}
+
+struct LoginView: View {
+    @State private var form = FormCraft(fields: LoginFields())
+
+    var body: some View {
+        VStack(spacing: 12) {
+            FormCraftView(formConfig: form) {
+                FormCraftControllerView(formConfig: form, key: \.email) { value, field in
+                    TextField("Email", text: value)
+                        .textFieldStyle(.roundedBorder)
+
+                    if let firstError = field.errors?.messages.first {
+                        Text(firstError).foregroundStyle(.red)
+                    }
+                }
+
+                FormCraftControllerView(formConfig: form, key: \.password) { value, field in
+                    SecureField("Password", text: value)
+                        .textFieldStyle(.roundedBorder)
+
+                    if let firstError = field.errors?.messages.first {
+                        Text(firstError).foregroundStyle(.red)
+                    }
+                }
+            }
+
+            Button("Sign In", action: form.handleSubmit { data in
+                // `data` contains typed validated values.
+                print(data.email)
+                print(data.password)
+            })
+            .disabled(form.formState.isSubmitting)
+        }
+        .padding()
+    }
+}
+```
+
+## You Talked Me Into It, So What Now?
+
+- Start with [Getting Started](/getting-started)
+- Learn available validators in [Validation Rules](/validation-rules/)
+- Explore full API in [API Reference](/api/)
+- Copy practical patterns from [Examples](/examples/)
