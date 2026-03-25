@@ -1,14 +1,14 @@
 # Overview
 
-FormCraft is often described as a practical validation-first library for SwiftUI forms. In more technical terms, it gives you a single model for collecting raw input, validating it (including async and cross-field rules), and submitting typed trusted data.
+FormCraft is a validation-first library for SwiftUI forms. It gives you one consistent flow: collect input, validate it (including async and cross-field checks), and submit typed trusted data.
 
-## Motivation
+## Why Teams Choose FormCraft
 
-Most SwiftUI projects do not have one opinionated, end-to-end form pipeline. Because of that, teams usually mix local `@State`, view-level checks, and ad-hoc submit handlers.
+Many SwiftUI codebases do not have a single end-to-end form model. As a result, teams often combine local `@State`, view-level checks, and custom submit handlers.
 
-That approach works at first, but form logic quickly becomes fragmented.
+This works for small forms, but complexity grows quickly.
 
-Unlike regular client state, form state has special challenges:
+Form state has its own constraints:
 
 - You start with raw user input, but business logic needs validated typed values.
 - Validation can be synchronous and asynchronous.
@@ -16,7 +16,7 @@ Unlike regular client state, form state has special challenges:
 - Errors must be user-friendly and localization-ready.
 - Submit should run only when all fields are valid.
 
-As forms grow, even more problems appear:
+As forms become larger, common issues appear:
 
 - Duplicated validation logic across screens
 - Inconsistent error handling and messaging
@@ -25,11 +25,11 @@ As forms grow, even more problems appear:
 - Refactors that break field wiring
 - Unclear ownership of "where validation really lives"
 
-If that sounds familiar, you are not doing anything wrong. Form handling is hard when there is no consistent system behind it.
+These problems are common in product teams. Form behavior is difficult to keep stable without one clear pipeline.
 
-FormCraft gives you that system. It works well with SwiftUI out of the box and scales from simple login forms to complex product flows.
+FormCraft provides that pipeline. It works naturally with SwiftUI and scales from simple forms to complex flows.
 
-FormCraft helps you:
+With FormCraft, you can:
 
 - Replace scattered form code with a consistent typed flow
 - Keep validation rules close to field definitions
@@ -37,7 +37,7 @@ FormCraft helps you:
 - Improve UX with predictable submit behavior
 - Ship faster with less form-related regressions
 
-Enough talk, show me some code already.
+## Basic Example
 
 ```swift
 import SwiftUI
@@ -101,7 +101,7 @@ struct LoginView: View {
 }
 ```
 
-## You Talked Me Into It, So What Now?
+## Continue Reading
 
 - Start with [Getting Started](/getting-started)
 - Learn available validators in [Validation Rules](/validation-rules/)
