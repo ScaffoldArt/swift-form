@@ -5,7 +5,7 @@
 FormCraft includes built-in validation rules out of the box.
 You can also define your own custom rules when needed.
 
-FormCraft provides `FormCraftValidationRules` with rule builders like `.string()`, `.integer()`, `.floating()`, `.boolean()`, and others.
+FormCraft provides `FormCraftValidationRules` with rule builders like `.string()`, `.integer()`, `.floating()`, `.decimal()`, `.boolean()`, `.custom()`, and others.
 
 ```swift
 await FormCraftValidationRules()

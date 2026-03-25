@@ -49,6 +49,7 @@ export default defineConfig({
           { text: 'Integer', link: '/validation-rules/integer' },
           { text: 'Floating', link: '/validation-rules/floating' },
           { text: 'Decimal', link: '/validation-rules/decimal' },
+          { text: 'Custom', link: '/validation-rules/custom' },
           { text: 'Union', link: '/validation-rules/union' },
         ]
       },
