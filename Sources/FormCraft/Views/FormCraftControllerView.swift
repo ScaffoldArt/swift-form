@@ -15,7 +15,7 @@ public struct FormCraftControllerView<
     public init(
         formConfig: FormConfig,
         key: WritableKeyPath<FormConfig.Fields, FormField>,
-        @ViewBuilder content: @escaping (_ value: Binding<Value>, _ formField: FormField) -> Content
+        @ViewBuilder content: @MainActor @escaping (_ value: Binding<Value>, _ formField: FormField) -> Content
     ) {
         self.formConfig = formConfig
         self.content = content
