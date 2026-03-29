@@ -9,12 +9,17 @@ public protocol FormCraftConfig: Observable, AnyObject {
     typealias Name = String
 
     var fields: Fields { get set }
+    var options: FormCraftOptions { get }
     var formState: FormCraftFormState<Fields> { get set }
 
     func setErrors<each Field: FormCraftFieldConfigurable>(
-        _ pairs: repeat (KeyPath<Fields, each Field>, FormCraftFailure)
+        _ pairs: repeat (KeyPath<Fields, each Field>, FormCraftFailure),
+        options: FormCraftSetErrorsOptions
     )
-    func setErrors(errors: [Name: [String]])
+    func setErrors(
+        errors: [Name: [String]],
+        options: FormCraftSetErrorsOptions
+    )
     func clearError<Field: FormCraftFieldConfigurable>(key: KeyPath<Fields, Field>)
     func clearErrors()
     func setDefaultValues<each Field: FormCraftFieldConfigurable>(
@@ -24,6 +29,26 @@ public protocol FormCraftConfig: Observable, AnyObject {
     func validateField<Field: FormCraftFieldConfigurable>(key: KeyPath<Fields, Field>) async -> Bool
     func validateFields() async -> Bool
     func handleSubmit(onSuccess: @escaping (_ data: FormCraftValidatedFields<Fields>) async -> Void) -> () -> Void
+}
+
+public struct FormCraftOptions {
+    public let shouldFocusError: Bool
+
+    public init(
+        shouldFocusError: Bool = true
+    ) {
+        self.shouldFocusError = shouldFocusError
+    }
+}
+
+public struct FormCraftSetErrorsOptions {
+    public let shouldFocusError: Bool?
+
+    public init(
+        shouldFocusError: Bool? = nil
+    ) {
+        self.shouldFocusError = shouldFocusError
+    }
 }
 
 @Observable
@@ -67,32 +92,53 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
     private var taskRefine: Task<FormCraftFailure?, Never>? = nil
 
     public var fields: Fields
+    public var options: FormCraftOptions
     public var formState = FormCraftFormState<Fields>(
         isSubmitting: false,
         focusedFieldKey: nil
     )
 
-    public init(fields: Fields) {
+    public init(
+        fields: Fields,
+        options: FormCraftOptions = .init()
+    ) {
         self.fields = fields
+        self.options = options
     }
 
     public func setErrors<each Field: FormCraftFieldConfigurable>(
-        _ pairs: repeat (KeyPath<Fields, each Field>, FormCraftFailure)
+        _ pairs: repeat (KeyPath<Fields, each Field>, FormCraftFailure),
+        options: FormCraftSetErrorsOptions = .init()
     ) {
         func apply<F: FormCraftFieldConfigurable>(_ key: KeyPath<Fields, F>, _ failure: FormCraftFailure) {
             fields[keyPath: key].errors = failure
         }
 
         repeat apply((each pairs).0, (each pairs).1)
+
+        if options.shouldFocusError ?? self.options.shouldFocusError {
+            Task {
+                await focusFirstError()
+            }
+        }
     }
 
-    public func setErrors(errors: [String: [String]]) {
+    public func setErrors(
+        errors: [String: [String]],
+        options: FormCraftSetErrorsOptions = .init()
+    ) {
         errors.forEach { error in
             guard let fieldKey = fields.getAccessNames()[error.key] else {
                 return
             }
 
             fields.getField(by: fieldKey).errors = .init(error.value.compactMap { .init($0) })
+        }
+
+        if options.shouldFocusError ?? self.options.shouldFocusError {
+            Task {
+                await focusFirstError()
+            }
         }
     }
 
@@ -235,7 +281,7 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
 
         let refineFailuresByKeyPath = await validateRefine()
 
-        let perFieldValidationFailures = await asyncPerFieldValidationFailures 
+        let perFieldValidationFailures = await asyncPerFieldValidationFailures
 
         var failuresByKeyPath: [PartialKeyPath<Fields>: FormCraftFailure] = Dictionary(
             uniqueKeysWithValues: perFieldValidationFailures.compactMap { name, failure in
@@ -272,7 +318,9 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
 
                 let isValid = await self.validateFields()
 
-                await focusFirstError()
+                if !isValid && self.options.shouldFocusError {
+                    await focusFirstError()
+                }
 
                 guard isValid else { return }
 
