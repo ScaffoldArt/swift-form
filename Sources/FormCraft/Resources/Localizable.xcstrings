@@ -95,6 +95,12 @@
             "state" : "translated",
             "value" : "Must be a valid phone number"
           }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Número de teléfono válido"
+          }
         }
       }
     },
@@ -139,6 +145,12 @@
             "state" : "translated",
             "value" : "Value must end with %1$@"
           }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El valor debe terminar con %1$@"
+          }
         }
       }
     },
@@ -167,6 +179,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "equals %1$@ %2$@"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "es igual a %1$@ %2$@"
           }
         }
       }
@@ -197,6 +215,12 @@
             "state" : "translated",
             "value" : "Must be greater than %1$@"
           }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Debe ser mayor que %1$@"
+          }
         }
       }
     },
@@ -225,6 +249,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Must be at least %1$@"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Debe ser al menos %1$@"
           }
         }
       }
@@ -255,6 +285,12 @@
             "state" : "translated",
             "value" : "Value must include %1$@"
           }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El valor debe incluir %1$@"
+          }
         }
       }
     },
@@ -283,6 +319,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "invalidType %1$@ %2$@"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipo inválido: se esperaba %1$@, se recibió %2$@"
           }
         }
       }
@@ -364,6 +406,12 @@
             "state" : "translated",
             "value" : "Must be exactly %1$@ characters long"
           }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Debe tener exactamente %1$@ caracteres"
+          }
         }
       }
     },
@@ -410,6 +458,12 @@
             "state" : "translated",
             "value" : "Must be less than %1$@"
           }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Debe ser menor que %1$@"
+          }
         }
       }
     },
@@ -438,6 +492,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Must not be more than %1$@"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No debe ser mayor que %1$@"
           }
         }
       }
@@ -468,6 +528,12 @@
             "state" : "translated",
             "value" : "Must be %1$@ or fewer characters long"
           }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Debe tener %1$@ caracteres o menos"
+          }
         }
       }
     },
@@ -497,6 +563,12 @@
             "state" : "translated",
             "value" : "Must be %1$@ or more characters long"
           }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Debe tener %1$@ caracteres o más"
+          }
         }
       }
     },
@@ -525,6 +597,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Must be a multiple of %1$@"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Debe ser múltiplo de %1$@"
           }
         }
       }
@@ -673,6 +751,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Value must start with %1$@"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El valor debe comenzar con %1$@"
           }
         }
       }
