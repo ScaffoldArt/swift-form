@@ -22,6 +22,10 @@ public protocol FormCraftConfig: Observable, AnyObject {
     )
     func clearError<Field: FormCraftFieldConfigurable>(key: KeyPath<Fields, Field>)
     func clearErrors()
+    func setDefaultValue<Field: FormCraftFieldConfigurable>(
+        key: WritableKeyPath<Fields, Field>,
+        value: Field.Value
+    )
     func setDefaultValues<each Field: FormCraftFieldConfigurable>(
         _ pairs: repeat (WritableKeyPath<Fields, each Field>, (each Field).Value)
     )
@@ -154,14 +158,24 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
         }
     }
 
+    public func setDefaultValue<Field: FormCraftFieldConfigurable>(
+        key: WritableKeyPath<Fields, Field>,
+        value: Field.Value
+    ) {
+        fields[keyPath: key].errors = nil
+        fields[keyPath: key].defaultValue = value
+        fields[keyPath: key].isDirty = false
+        fields[keyPath: key].value = value
+    }
+
     public func setDefaultValues<each Field: FormCraftFieldConfigurable>(
         _ pairs: repeat (WritableKeyPath<Fields, each Field>, (each Field).Value)
     ) {
-        func apply<F: FormCraftFieldConfigurable>(_ key: WritableKeyPath<Fields, F>, _ value: F.Value) {
-            fields[keyPath: key].errors = nil
-            fields[keyPath: key].defaultValue = value
-            fields[keyPath: key].isDirty = false
-            fields[keyPath: key].value = value
+        func apply<F: FormCraftFieldConfigurable>(
+            _ key: WritableKeyPath<Fields, F>,
+            _ value: F.Value
+        ) {
+            setDefaultValue(key: key, value: value)
         }
         repeat apply((each pairs).0, (each pairs).1)
     }
