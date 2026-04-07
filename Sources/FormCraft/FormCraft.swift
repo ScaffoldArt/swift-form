@@ -31,7 +31,7 @@ public protocol FormCraftConfig: Observable, AnyObject {
     )
     func setFocus<Field: FormCraftFieldConfigurable>(key: KeyPath<Fields, Field>?)
     func validateField<Field: FormCraftFieldConfigurable>(key: KeyPath<Fields, Field>) async -> Bool
-    func validateFields() async -> Bool
+    func validateFields(_ keys: PartialKeyPath<Fields>...) async -> Bool
     func handleSubmit(onSuccess: @escaping (_ data: FormCraftValidatedFields<Fields>) async -> Void) -> () -> Void
 }
 
@@ -270,7 +270,7 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
         return field.errors == nil
     }
 
-    public func validateFields() async -> Bool {
+    public func validateFields(_ keys: PartialKeyPath<Fields>...) async -> Bool {
         defer {
             self.formState.isValidating = false
         }
@@ -278,18 +278,22 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
         self.formState.isValidating = true
 
         let accessNames = fields.getAccessNames()
+        let isFullValidation = keys.isEmpty
+        let targetKeys = isFullValidation ? Set(accessNames.values) : Set(keys)
+
         let fieldsByName = Dictionary(
-            uniqueKeysWithValues: accessNames.map { (name, keyPath) in
-                (name, fields.getField(by: keyPath))
-            }
+            uniqueKeysWithValues: accessNames
+                .filter { targetKeys.contains($0.value) }
+                .map { (name, keyPath) in
+                    (name, fields.getField(by: keyPath))
+                }
         )
 
         fieldsByName.values.forEach { field in
             field.taskValidation?.cancel()
             field.taskValidation = nil
+            field.errors = nil
         }
-
-        clearErrors()
 
         async let asyncPerFieldValidationFailures = withTaskGroup(of: (Name, FormCraftFailure?).self) { group in
             for (name, field) in fieldsByName {
@@ -306,7 +310,7 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
             return collected.compactMapValues { $0 }
         }
 
-        let refineFailuresByKeyPath = await validateRefine()
+        let refineFailuresByKeyPath = isFullValidation ? await validateRefine() : [:]
 
         let perFieldValidationFailures = await asyncPerFieldValidationFailures
 
