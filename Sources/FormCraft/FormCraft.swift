@@ -1,6 +1,6 @@
 import SwiftUI
 
-@attached(member, names: named(getAccessNames), named(getAccessOrder), named(_formCraftAccessNamesCache))
+@attached(member, names: named(getAccessNames), named(getAccessOrder))
 public macro FormCraft() = #externalMacro(module: "FormCraftMacros", type: "FormCraft")
 
 @MainActor
@@ -58,10 +58,16 @@ public struct FormCraftSetErrorsOptions {
 @Observable
 public final class FormCraftFormState<Fields> {
     public var isSubmitting: Bool
+    public var isValidating: Bool
     public var focusedFieldKey: PartialKeyPath<Fields>?
 
-    public init(isSubmitting: Bool, focusedFieldKey: PartialKeyPath<Fields>? = nil) {
+    public init(
+        isSubmitting: Bool,
+        isValidating: Bool,
+        focusedFieldKey: PartialKeyPath<Fields>? = nil
+    ) {
         self.isSubmitting = isSubmitting
+        self.isValidating = isValidating
         self.focusedFieldKey = focusedFieldKey
     }
 }
@@ -99,6 +105,7 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
     public var options: FormCraftOptions
     public var formState = FormCraftFormState<Fields>(
         isSubmitting: false,
+        isValidating: false,
         focusedFieldKey: nil
     )
 
@@ -264,6 +271,12 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
     }
 
     public func validateFields() async -> Bool {
+        defer {
+            self.formState.isValidating = false
+        }
+
+        self.formState.isValidating = true
+
         let accessNames = fields.getAccessNames()
         let fieldsByName = Dictionary(
             uniqueKeysWithValues: accessNames.map { (name, keyPath) in

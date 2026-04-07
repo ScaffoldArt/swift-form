@@ -1,71 +1,206 @@
-//
-//  FormCraftMacros.swift
-//  form-craft
-//
-//  Created by Артем Дробышев on 01.02.2026.
-//
-
 import SwiftCompilerPlugin
-import SwiftSyntaxMacros
 import SwiftSyntax
+import SwiftSyntaxMacros
 
 public struct FormCraft: MemberMacro {
     public static func expansion(
-       of node: AttributeSyntax,
-       providingMembersOf declaration: some DeclGroupSyntax,
-       conformingTo protocols: [TypeSyntax],
-       in context: some MacroExpansionContext
-   ) throws -> [DeclSyntax] {
-       guard let structDecl = declaration.as(StructDeclSyntax.self) else {
-           return []
-       }
+        of node: AttributeSyntax,
+        providingMembersOf declaration: some DeclGroupSyntax,
+        conformingTo protocols: [TypeSyntax],
+        in context: some MacroExpansionContext
+    ) throws -> [DeclSyntax] {
+        guard let structDecl = declaration.as(StructDeclSyntax.self) else {
+            return []
+        }
 
-       let structName = structDecl.name.text
-       let nestedStructsByName = collectNestedStructDeclarations(in: structDecl)
-       let accessPaths = uniquePreservingOrder(
-           collectAccessPaths(
-               in: structDecl,
-               prefix: [],
-               nestedStructsByName: nestedStructsByName,
-               visitedStructNames: [structName]
-           )
-       )
+        let structName = structDecl.name.text
+        let nestedStructsByName = collectNestedStructDeclarations(in: structDecl)
 
-       let mapperString = accessPaths.map { "\"\($0)\": \\.\($0)" }.joined(separator: ", ")
-       let orderString = accessPaths.map { "\"\($0)\"" }.joined(separator: ", ")
+        let accessNamesLines = buildAccessLines(
+            in: structDecl,
+            nestedStructsByName: nestedStructsByName,
+            mode: .names,
+            pathParts: [],
+            keyPath: "",
+            loopDepth: 0,
+            visitedStructNames: [structName]
+        )
 
-       return [
-           """
-           private static var _formCraftAccessNamesCache: [String: PartialKeyPath<\(raw: structName)>]?
+        let accessOrderLines = buildAccessLines(
+            in: structDecl,
+            nestedStructsByName: nestedStructsByName,
+            mode: .order,
+            pathParts: [],
+            keyPath: "",
+            loopDepth: 0,
+            visitedStructNames: [structName]
+        )
 
-           func getAccessNames() -> [String: PartialKeyPath<\(raw: structName)>] {
-               if let cache = Self._formCraftAccessNamesCache {
-                   return cache
-               }
+        let accessNamesBody = renderBody(accessNamesLines)
+        let accessOrderBody = renderBody(accessOrderLines)
 
-               let all: [String: PartialKeyPath<\(raw: structName)>] = [\(raw: mapperString)]
-               let filtered: [String: PartialKeyPath<\(raw: structName)>] = Dictionary(
-                   uniqueKeysWithValues: all.compactMap { (name, keyPath) -> (String, PartialKeyPath<\(raw: structName)>)? in
-                       guard self[keyPath: keyPath] is any FormCraftFieldConfigurable else {
-                           return nil
-                       }
+        return [
+            """
+            func getAccessNames() -> [String: PartialKeyPath<\(raw: structName)>] {
+                var accessNames: [String: PartialKeyPath<\(raw: structName)>] = [:]
+            \(raw: accessNamesBody)    return accessNames
+            }
 
-                       return (name, keyPath)
-                   }
-               )
+            func getAccessOrder() -> [String] {
+                var accessOrder: [String] = []
+            \(raw: accessOrderBody)    return accessOrder
+            }
+            """
+        ]
+    }
 
-               Self._formCraftAccessNamesCache = filtered
-               return filtered
-           }
+    private enum AccessMode {
+        case names
+        case order
+    }
 
-           func getAccessOrder() -> [String] {
-               let accessNames = getAccessNames()
-               let ordered = [\(raw: orderString)]
-               return ordered.filter { accessNames[$0] != nil }
-           }
-           """
-       ]
-   }
+    private enum PathPart {
+        case property(String)
+        case index(String)
+    }
+
+    private static func buildAccessLines(
+        in structDecl: StructDeclSyntax,
+        nestedStructsByName: [String: StructDeclSyntax],
+        mode: AccessMode,
+        pathParts: [PathPart],
+        keyPath: String,
+        loopDepth: Int,
+        visitedStructNames: Set<String>
+    ) -> [String] {
+        var lines: [String] = []
+
+        for member in structDecl.memberBlock.members {
+            guard let variable = member.decl.as(VariableDeclSyntax.self), !isStaticOrClass(variable) else {
+                continue
+            }
+
+            for binding in variable.bindings {
+                guard let identifier = binding.pattern.as(IdentifierPatternSyntax.self) else {
+                    continue
+                }
+
+                let propertyName = identifier.identifier.text
+                let nextPathParts = pathParts + [.property(propertyName)]
+                let nextKeyPath = appendProperty(propertyName, to: keyPath)
+
+                if let referencedType = referencedTypeName(for: binding),
+                   let referencedStruct = nestedStructsByName[referencedType],
+                   isGroupStruct(referencedStruct) {
+                    guard !visitedStructNames.contains(referencedType) else {
+                        continue
+                    }
+
+                    lines += buildAccessLines(
+                        in: referencedStruct,
+                        nestedStructsByName: nestedStructsByName,
+                        mode: mode,
+                        pathParts: nextPathParts,
+                        keyPath: nextKeyPath,
+                        loopDepth: loopDepth,
+                        visitedStructNames: visitedStructNames.union([referencedType])
+                    )
+                    continue
+                }
+
+                if let itemType = collectionItemTypeName(for: binding),
+                   let itemStruct = nestedStructsByName[itemType],
+                   isCollectionItemStruct(itemStruct) {
+                    guard !visitedStructNames.contains(itemType) else {
+                        continue
+                    }
+
+                    let indexName = "_formCraftIndex\(loopDepth)"
+                    lines.append("for \(indexName) in self.\(nextKeyPath).indices {")
+
+                    let nestedLines = buildAccessLines(
+                        in: itemStruct,
+                        nestedStructsByName: nestedStructsByName,
+                        mode: mode,
+                        pathParts: nextPathParts + [.index(indexName)],
+                        keyPath: "\(nextKeyPath)[\(indexName)]",
+                        loopDepth: loopDepth + 1,
+                        visitedStructNames: visitedStructNames.union([itemType])
+                    )
+
+                    lines += indented(nestedLines)
+                    lines.append("}")
+                    continue
+                }
+
+                let pathExpression = renderPathExpression(nextPathParts)
+
+                lines.append("if (self.\(nextKeyPath) as Any) is any FormCraftFieldConfigurable {")
+                switch mode {
+                case .names:
+                    lines.append("    accessNames[\(pathExpression)] = \\.\(nextKeyPath)")
+                case .order:
+                    lines.append("    accessOrder.append(\(pathExpression))")
+                }
+                lines.append("}")
+            }
+        }
+
+        return lines
+    }
+
+    private static func appendProperty(_ propertyName: String, to keyPath: String) -> String {
+        if keyPath.isEmpty {
+            return propertyName
+        }
+
+        return "\(keyPath).\(propertyName)"
+    }
+
+    private static func renderPathExpression(_ pathParts: [PathPart]) -> String {
+        var rendered = "\""
+        var isFirst = true
+
+        for pathPart in pathParts {
+            switch pathPart {
+            case .property(let name):
+                if isFirst {
+                    rendered += name
+                } else {
+                    rendered += ".\(name)"
+                }
+
+            case .index(let indexName):
+                if isFirst {
+                    rendered += "[\\(\(indexName))]"
+                } else {
+                    rendered += ".[\\(\(indexName))]"
+                }
+            }
+
+            isFirst = false
+        }
+
+        rendered += "\""
+        return rendered
+    }
+
+    private static func renderBody(_ lines: [String]) -> String {
+        guard !lines.isEmpty else {
+            return ""
+        }
+
+        return lines.map { "    \($0)" }.joined(separator: "\n") + "\n"
+    }
+
+    private static func indented(_ lines: [String], spaces: Int = 4) -> [String] {
+        guard !lines.isEmpty else {
+            return []
+        }
+
+        let prefix = String(repeating: " ", count: spaces)
+        return lines.map { prefix + $0 }
+    }
 
     private static func collectNestedStructDeclarations(
         _ structDecl: StructDeclSyntax,
@@ -98,54 +233,6 @@ public struct FormCraft: MemberMacro {
         return declarationsByName
     }
 
-    private static func collectAccessPaths(
-        in structDecl: StructDeclSyntax,
-        prefix: [String],
-        nestedStructsByName: [String: StructDeclSyntax],
-        visitedStructNames: Set<String>
-    ) -> [String] {
-        var accessPaths: [String] = []
-
-        for member in structDecl.memberBlock.members {
-            guard let variable = member.decl.as(VariableDeclSyntax.self), !isStaticOrClass(variable) else {
-                continue
-            }
-
-            for binding in variable.bindings {
-                guard let identifier = binding.pattern.as(IdentifierPatternSyntax.self) else {
-                    continue
-                }
-
-                let propertyName = identifier.identifier.text
-                let currentPath = prefix + [propertyName]
-                let currentPathString = currentPath.joined(separator: ".")
-
-                guard let referencedType = referencedTypeName(for: binding),
-                      let referencedStruct = nestedStructsByName[referencedType],
-                      isGroupStruct(referencedStruct),
-                      !visitedStructNames.contains(referencedType) else {
-                    accessPaths.append(currentPathString)
-                    continue
-                }
-
-                let nestedPaths = collectAccessPaths(
-                    in: referencedStruct,
-                    prefix: currentPath,
-                    nestedStructsByName: nestedStructsByName,
-                    visitedStructNames: visitedStructNames.union([referencedType])
-                )
-
-                if nestedPaths.isEmpty {
-                    accessPaths.append(currentPathString)
-                } else {
-                    accessPaths.append(contentsOf: nestedPaths)
-                }
-            }
-        }
-
-        return accessPaths
-    }
-
     private static func isStaticOrClass(_ variable: VariableDeclSyntax) -> Bool {
         variable.modifiers.contains { modifier in
             let tokenKind = modifier.name.tokenKind
@@ -154,13 +241,20 @@ public struct FormCraft: MemberMacro {
     }
 
     private static func isGroupStruct(_ structDecl: StructDeclSyntax) -> Bool {
+        inherits(structDecl, from: "FormCraftGroup")
+    }
+
+    private static func isCollectionItemStruct(_ structDecl: StructDeclSyntax) -> Bool {
+        inherits(structDecl, from: "FormCraftCollectionItem")
+    }
+
+    private static func inherits(_ structDecl: StructDeclSyntax, from protocolName: String) -> Bool {
         guard let inheritanceClause = structDecl.inheritanceClause else {
             return false
         }
 
         for inheritedType in inheritanceClause.inheritedTypes {
-            let inheritedTypeName = normalizedTypeName(from: inheritedType.type.trimmedDescription)
-            if inheritedTypeName == "FormCraftGroup" {
+            if normalizedTypeName(from: inheritedType.type.trimmedDescription) == protocolName {
                 return true
             }
         }
@@ -180,15 +274,116 @@ public struct FormCraft: MemberMacro {
             return nil
         }
 
-        if let reference = initializer.calledExpression.as(DeclReferenceExprSyntax.self) {
-            return reference.baseName.text
+        return calledTypeName(from: initializer.calledExpression)
+    }
+
+    private static func collectionItemTypeName(for binding: PatternBindingSyntax) -> String? {
+        if let typeAnnotation = binding.typeAnnotation,
+           let itemType = extractCollectionItemType(from: typeAnnotation.type.trimmedDescription) {
+            return itemType
         }
 
-        if let memberAccess = initializer.calledExpression.as(MemberAccessExprSyntax.self) {
-            return memberAccess.declName.baseName.text
+        guard let initializer = binding.initializer?.value.as(FunctionCallExprSyntax.self),
+              isFormCraftCollectionCall(initializer.calledExpression) else {
+            return nil
+        }
+
+        if let trailingClosure = initializer.trailingClosure,
+           let itemType = closureReturnTypeName(from: trailingClosure) {
+            return itemType
+        }
+
+        if let firstArgument = initializer.arguments.first?.expression,
+           let arrayExpression = firstArgument.as(ArrayExprSyntax.self),
+           let firstElement = arrayExpression.elements.first?.expression.as(FunctionCallExprSyntax.self),
+           let itemType = calledTypeName(from: firstElement.calledExpression) {
+            return itemType
         }
 
         return nil
+    }
+
+    private static func isFormCraftCollectionCall(_ expression: ExprSyntax) -> Bool {
+        calledTypeName(from: expression) == "FormCraftCollection"
+    }
+
+    private static func calledTypeName(from expression: ExprSyntax) -> String? {
+        if let reference = expression.as(DeclReferenceExprSyntax.self) {
+            return normalizedTypeName(from: reference.baseName.text)
+        }
+
+        if let memberAccess = expression.as(MemberAccessExprSyntax.self) {
+            return normalizedTypeName(from: memberAccess.declName.baseName.text)
+        }
+
+        return nil
+    }
+
+    private static func closureReturnTypeName(from closure: ClosureExprSyntax) -> String? {
+        for statement in closure.statements {
+            if let expression = statement.item.as(ExprSyntax.self),
+               let functionCall = expression.as(FunctionCallExprSyntax.self),
+               let typeName = calledTypeName(from: functionCall.calledExpression) {
+                return typeName
+            }
+
+            if let returnStatement = statement.item.as(ReturnStmtSyntax.self),
+               let expression = returnStatement.expression,
+               let functionCall = expression.as(FunctionCallExprSyntax.self),
+               let typeName = calledTypeName(from: functionCall.calledExpression) {
+                return typeName
+            }
+        }
+
+        return nil
+    }
+
+    private static func extractCollectionItemType(from rawTypeName: String) -> String? {
+        let compact = String(rawTypeName.filter { !$0.isWhitespace })
+
+        guard let genericStart = compact.firstIndex(of: "<"),
+              let genericEnd = compact.lastIndex(of: ">"),
+              genericStart < genericEnd else {
+            return nil
+        }
+
+        let baseName = String(compact[..<genericStart])
+        guard normalizedTypeName(from: baseName) == "FormCraftCollection" else {
+            return nil
+        }
+
+        let genericBody = String(compact[compact.index(after: genericStart)..<genericEnd])
+        let itemRawName = firstGenericArgument(in: genericBody)
+        let itemType = normalizedTypeName(from: itemRawName)
+
+        return itemType.isEmpty ? nil : itemType
+    }
+
+    private static func firstGenericArgument(in genericBody: String) -> String {
+        var depth = 0
+        var result = ""
+
+        for character in genericBody {
+            if character == "<" {
+                depth += 1
+                result.append(character)
+                continue
+            }
+
+            if character == ">" {
+                depth -= 1
+                result.append(character)
+                continue
+            }
+
+            if character == "," && depth == 0 {
+                break
+            }
+
+            result.append(character)
+        }
+
+        return result
     }
 
     private static func normalizedTypeName(from rawTypeName: String) -> String {
@@ -215,17 +410,6 @@ public struct FormCraft: MemberMacro {
         }
 
         return typeName
-    }
-
-    private static func uniquePreservingOrder(_ values: [String]) -> [String] {
-        var seen: Set<String> = []
-        var result: [String] = []
-
-        for value in values where seen.insert(value).inserted {
-            result.append(value)
-        }
-
-        return result
     }
 }
 
