@@ -31,7 +31,10 @@ public protocol FormCraftConfig: Observable, AnyObject {
     )
     func setFocus<Field: FormCraftFieldConfigurable>(key: KeyPath<Fields, Field>?)
     func validateField<Field: FormCraftFieldConfigurable>(key: KeyPath<Fields, Field>) async -> Bool
-    func validateFields(_ keys: PartialKeyPath<Fields>...) async -> Bool
+    func validateFields(
+        _ keys: PartialKeyPath<Fields>...,
+        options: FormCraftValidateFieldsOptions
+    ) async -> Bool
     func handleSubmit(onSuccess: @escaping (_ data: FormCraftValidatedFields<Fields>) async -> Void) -> () -> Void
 }
 
@@ -46,6 +49,16 @@ public struct FormCraftOptions {
 }
 
 public struct FormCraftSetErrorsOptions {
+    public let shouldFocusError: Bool?
+
+    public init(
+        shouldFocusError: Bool? = nil
+    ) {
+        self.shouldFocusError = shouldFocusError
+    }
+}
+
+public struct FormCraftValidateFieldsOptions {
     public let shouldFocusError: Bool?
 
     public init(
@@ -270,7 +283,10 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
         return field.errors == nil
     }
 
-    public func validateFields(_ keys: PartialKeyPath<Fields>...) async -> Bool {
+    public func validateFields(
+        _ keys: PartialKeyPath<Fields>...,
+        options: FormCraftValidateFieldsOptions = .init()
+    ) async -> Bool {
         defer {
             self.formState.isValidating = false
         }
@@ -331,6 +347,10 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
             fields.getField(by: keyPath).errors = failure
         }
 
+        if !failuresByKeyPath.isEmpty && (options.shouldFocusError ?? self.options.shouldFocusError) {
+            await focusFirstError()
+        }
+
         return failuresByKeyPath.isEmpty
     }
 
@@ -348,10 +368,6 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
                 defer { self.formState.isSubmitting = false }
 
                 let isValid = await self.validateFields()
-
-                if !isValid && self.options.shouldFocusError {
-                    await focusFirstError()
-                }
 
                 guard isValid else { return }
 
