@@ -30,7 +30,7 @@ public protocol FormCraftConfig: Observable, AnyObject {
         _ pairs: repeat (WritableKeyPath<Fields, each Field>, (each Field).Value)
     )
     func setFocus<Field: FormCraftFieldConfigurable>(key: KeyPath<Fields, Field>?)
-    func validateField<Field: FormCraftFieldConfigurable>(key: KeyPath<Fields, Field>) async -> Bool
+    func validateFieldOnChange<Field: FormCraftFieldConfigurable>(key: KeyPath<Fields, Field>) async -> Bool
     func validateFields(
         _ keys: PartialKeyPath<Fields>...,
         options: FormCraftValidateFieldsOptions
@@ -248,7 +248,7 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
         return refineValidated.compactMapValues { $0 }
     }
 
-    public func validateField<Field: FormCraftFieldConfigurable>(key: KeyPath<Fields, Field>) async -> Bool {
+    public func validateFieldOnChange<Field: FormCraftFieldConfigurable>(key: KeyPath<Fields, Field>) async -> Bool {
         let field = fields[keyPath: key]
 
         field.taskValidation?.cancel()

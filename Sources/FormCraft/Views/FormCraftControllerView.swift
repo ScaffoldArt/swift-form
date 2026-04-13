@@ -52,7 +52,7 @@ public struct FormCraftControllerView<
                 }
 
                 Task {
-                    await formConfig.validateField(key: key)
+                    await formConfig.validateFieldOnChange(key: key)
                 }
             }
     }
