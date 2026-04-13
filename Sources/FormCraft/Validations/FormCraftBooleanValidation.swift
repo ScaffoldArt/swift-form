@@ -1,4 +1,4 @@
-import SwiftUI
+import Foundation
 
 public extension FormCraftValidationRules {
     /// Creates a validation builder for `Bool` values.
