@@ -43,9 +43,7 @@ public struct FormCraftControllerView<
                 }
             }
             .onChange(of: field.value) {
-                if field.isDirty == false && field.value != field.defaultValue {
-                    field.isDirty = true
-                }
+                field.isDirty = field.isDirty == false && field.value != field.defaultValue
 
                 if !field.isDirty {
                     return
