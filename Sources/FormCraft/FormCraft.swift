@@ -68,17 +68,27 @@ public struct FormCraftValidateFieldsOptions {
     }
 }
 
+@MainActor
 @Observable
-public final class FormCraftFormState<Fields> {
+public final class FormCraftFormState<Fields: FormCraftFields> {
+    private let fields: Fields
+
     public var isSubmitting: Bool
     public var isValidating: Bool
+    public var isDirty: Bool {
+        fields.getAccessNames().contains {
+            fields.getField(by: $0.value).isDirty
+        }
+    }
     public var focusedFieldKey: PartialKeyPath<Fields>?
 
     public init(
+        fields: Fields,
         isSubmitting: Bool,
         isValidating: Bool,
-        focusedFieldKey: PartialKeyPath<Fields>? = nil
+        focusedFieldKey: PartialKeyPath<Fields>?
     ) {
+        self.fields = fields
         self.isSubmitting = isSubmitting
         self.isValidating = isValidating
         self.focusedFieldKey = focusedFieldKey
@@ -116,11 +126,7 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
 
     public var fields: Fields
     public var options: FormCraftOptions
-    public var formState = FormCraftFormState<Fields>(
-        isSubmitting: false,
-        isValidating: false,
-        focusedFieldKey: nil
-    )
+    public var formState: FormCraftFormState<Fields>
 
     public init(
         fields: Fields,
@@ -128,6 +134,12 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
     ) {
         self.fields = fields
         self.options = options
+        self.formState = .init(
+            fields: fields,
+            isSubmitting: false,
+            isValidating: false,
+            focusedFieldKey: nil
+        )
     }
 
     public func setErrors<each Field: FormCraftFieldConfigurable>(
