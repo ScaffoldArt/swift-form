@@ -390,7 +390,7 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
             self.formState.isSubmitting = true
 
             if self.options.shouldDisableOnSubmit {
-                self.formState.isSubmitting = true
+                self.formState.isSubmitting = false
             }
 
             Task { [weak self] in
@@ -400,7 +400,7 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
                     self.formState.isSubmitting = false
 
                     if self.options.shouldDisableOnSubmit {
-                        self.formState.isSubmitting = false
+                        self.formState.isSubmitting = true
                     }
                 }
 
