@@ -43,8 +43,8 @@ public struct FormCraftOptions {
     public let shouldDisableOnSubmit: Bool
 
     public init(
-        shouldFocusError: Bool = true,
-        shouldDisableOnSubmit: Bool = true
+        shouldFocusError: Bool,
+        shouldDisableOnSubmit: Bool
     ) {
         self.shouldFocusError = shouldFocusError
         self.shouldDisableOnSubmit = shouldDisableOnSubmit
@@ -144,7 +144,10 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
 
     public init(
         fields: Fields,
-        options: FormCraftOptions = .init()
+        options: FormCraftOptions = .init(
+            shouldFocusError: true,
+            shouldDisableOnSubmit: true
+        )
     ) {
         self.fields = fields
         self.options = options
