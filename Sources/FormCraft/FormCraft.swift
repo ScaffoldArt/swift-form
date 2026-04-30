@@ -40,11 +40,14 @@ public protocol FormCraftConfig: Observable, AnyObject {
 
 public struct FormCraftOptions {
     public let shouldFocusError: Bool
+    public let shouldDisableOnSubmit: Bool
 
     public init(
-        shouldFocusError: Bool = true
+        shouldFocusError: Bool = true,
+        shouldDisableOnSubmit: Bool = true
     ) {
         self.shouldFocusError = shouldFocusError
+        self.shouldDisableOnSubmit = shouldDisableOnSubmit
     }
 }
 
@@ -73,25 +76,28 @@ public struct FormCraftValidateFieldsOptions {
 public final class FormCraftFormState<Fields: FormCraftFields> {
     private let fields: Fields
 
-    public var isSubmitting: Bool
-    public var isValidating: Bool
+    public package(set) var isSubmitting: Bool
+    public package(set) var isValidating: Bool
+    public package(set) var focusedFieldKey: PartialKeyPath<Fields>?
+    public var isDisabled: Bool
     public var isDirty: Bool {
         fields.getAccessNames().contains {
             fields.getField(by: $0.value).isDirty
         }
     }
-    public var focusedFieldKey: PartialKeyPath<Fields>?
 
     public init(
         fields: Fields,
         isSubmitting: Bool,
         isValidating: Bool,
-        focusedFieldKey: PartialKeyPath<Fields>?
+        focusedFieldKey: PartialKeyPath<Fields>?,
+        isDisabled: Bool
     ) {
         self.fields = fields
         self.isSubmitting = isSubmitting
         self.isValidating = isValidating
         self.focusedFieldKey = focusedFieldKey
+        self.isDisabled = isDisabled
     }
 }
 
@@ -116,6 +122,14 @@ public struct FormCraftValidatedFields<Fields> {
     ) -> FormCraftValidatedFields<Group> {
         .init(fields: underlyingFields[keyPath: nestedKeyPath])
     }
+
+    public subscript<Item: FormCraftCollectionItem>(
+        dynamicMember collectionKeyPath: KeyPath<Fields, FormCraftCollection<Item>>
+    ) -> [FormCraftValidatedFields<Item>] {
+        underlyingFields[keyPath: collectionKeyPath].items.map {
+            .init(fields: $0)
+        }
+    }
 }
 
 @Observable
@@ -138,7 +152,8 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
             fields: fields,
             isSubmitting: false,
             isValidating: false,
-            focusedFieldKey: nil
+            focusedFieldKey: nil,
+            isDisabled: false
         )
     }
 
@@ -374,10 +389,20 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
 
             self.formState.isSubmitting = true
 
+            if self.options.shouldDisableOnSubmit {
+                self.formState.isSubmitting = true
+            }
+
             Task { [weak self] in
                 guard let self else { return }
 
-                defer { self.formState.isSubmitting = false }
+                defer {
+                    self.formState.isSubmitting = false
+
+                    if self.options.shouldDisableOnSubmit {
+                        self.formState.isSubmitting = false
+                    }
+                }
 
                 let isValid = await self.validateFields()
 

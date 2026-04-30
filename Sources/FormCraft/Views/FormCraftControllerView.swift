@@ -27,6 +27,7 @@ public struct FormCraftControllerView<
 
         content($field.value, formConfig.fields[keyPath: key])
             .focused($isFocused)
+            .disabled(formConfig.formState.isDisabled)
             .onAppear {
                 formConfig.fields[keyPath: key].mounted = true
                 isFocused = formConfig.formState.focusedFieldKey == key
