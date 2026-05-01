@@ -50,7 +50,7 @@ public protocol FormCraftFieldConfigurable: Observable, AnyObject, Sendable {
     var defaultValue: Value { get set }
     var mounted: Bool { get set }
     var errors: FormCraftFailure? { get set }
-    var isValidation: Bool { get set }
+    var isValidating: Bool { get set }
     var taskValidation: Task<Void, Never>? { get set }
     var isDirty: Bool { get set }
     var isError: Bool { get }
@@ -111,7 +111,7 @@ public final class FormCraftField<Value: Equatable & Sendable, ValidatedValue: S
     public var defaultValue: Value
     public var mounted: Bool = false
     public var errors: FormCraftFailure? = nil
-    public var isValidation: Bool = false
+    public var isValidating: Bool = false
     public var taskValidation: Task<Void, Never>? = nil
     public var isDirty: Bool = false
     public var isError: Bool { errors != nil }
@@ -130,20 +130,20 @@ public final class FormCraftField<Value: Equatable & Sendable, ValidatedValue: S
     }
 
     public func validate() async -> FormCraftFailure? {
-        self.isValidation = true
+        defer {
+            self.isValidating = false
+        }
+
+        self.isValidating = true
 
         let validationResponse = await rule(value)
 
         switch validationResponse {
         case .success(let validatedValue):
             self.validatedValue = validatedValue
-            self.isValidation = false
 
             return nil
-
         case .failure(let failure):
-            self.isValidation = false
-
             return failure
         }
     }

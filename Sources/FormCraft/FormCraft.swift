@@ -77,9 +77,13 @@ public final class FormCraftFormState<Fields: FormCraftFields> {
     private let fields: Fields
 
     public package(set) var isSubmitting: Bool
-    public package(set) var isValidating: Bool
     public package(set) var focusedFieldKey: PartialKeyPath<Fields>?
     public var isDisabled: Bool
+    public var isValidating: Bool {
+        fields.getAccessNames().contains {
+            fields.getField(by: $0.value).isValidating
+        }
+    }
     public var isDirty: Bool {
         fields.getAccessNames().contains {
             fields.getField(by: $0.value).isDirty
@@ -89,13 +93,11 @@ public final class FormCraftFormState<Fields: FormCraftFields> {
     public init(
         fields: Fields,
         isSubmitting: Bool,
-        isValidating: Bool,
         focusedFieldKey: PartialKeyPath<Fields>?,
         isDisabled: Bool
     ) {
         self.fields = fields
         self.isSubmitting = isSubmitting
-        self.isValidating = isValidating
         self.focusedFieldKey = focusedFieldKey
         self.isDisabled = isDisabled
     }
@@ -154,7 +156,6 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
         self.formState = .init(
             fields: fields,
             isSubmitting: false,
-            isValidating: false,
             focusedFieldKey: nil,
             isDisabled: false
         )
@@ -317,12 +318,6 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
         _ keys: PartialKeyPath<Fields>...,
         options: FormCraftValidateFieldsOptions = .init()
     ) async -> Bool {
-        defer {
-            self.formState.isValidating = false
-        }
-
-        self.formState.isValidating = true
-
         let accessNames = fields.getAccessNames()
         let isFullValidation = keys.isEmpty
         let targetKeys = isFullValidation ? Set(accessNames.values) : Set(keys)
