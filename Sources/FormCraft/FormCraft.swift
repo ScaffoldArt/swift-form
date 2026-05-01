@@ -35,19 +35,19 @@ public protocol FormCraftConfig: Observable, AnyObject {
         _ keys: PartialKeyPath<Fields>...,
         options: FormCraftValidateFieldsOptions
     ) async -> Bool
-    func handleSubmit(onSuccess: @escaping (_ data: FormCraftValidatedFields<Fields>) async -> Void) -> () -> Void
+    func handleSubmit(
+        onSuccess: @escaping (_ data: FormCraftValidatedFields<Fields>) async -> Void,
+        options: FormCraftHandleSubmitOptions
+    ) -> () -> Void
 }
 
 public struct FormCraftOptions {
     public let shouldFocusError: Bool
-    public let shouldDisableOnSubmit: Bool
 
     public init(
-        shouldFocusError: Bool,
-        shouldDisableOnSubmit: Bool
+        shouldFocusError: Bool = true,
     ) {
         self.shouldFocusError = shouldFocusError
-        self.shouldDisableOnSubmit = shouldDisableOnSubmit
     }
 }
 
@@ -63,11 +63,24 @@ public struct FormCraftSetErrorsOptions {
 
 public struct FormCraftValidateFieldsOptions {
     public let shouldFocusError: Bool?
+    public let shouldDisable: Bool?
 
     public init(
-        shouldFocusError: Bool? = nil
+        shouldFocusError: Bool? = nil,
+        shouldDisable: Bool? = nil
     ) {
         self.shouldFocusError = shouldFocusError
+        self.shouldDisable = shouldDisable
+    }
+}
+
+public struct FormCraftHandleSubmitOptions {
+    public let shouldDisable: Bool?
+
+    public init(
+        shouldDisabled: Bool? = nil
+    ) {
+        self.shouldDisable = shouldDisabled
     }
 }
 
@@ -77,6 +90,8 @@ public final class FormCraftFormState<Fields: FormCraftFields> {
     private let fields: Fields
 
     public package(set) var isSubmitting: Bool
+    public package(set) var isSubmitted: Bool
+    public package(set) var isSubmitSuccessful: Bool
     public package(set) var focusedFieldKey: PartialKeyPath<Fields>?
     public var isDisabled: Bool
     public var isValidating: Bool {
@@ -93,11 +108,15 @@ public final class FormCraftFormState<Fields: FormCraftFields> {
     public init(
         fields: Fields,
         isSubmitting: Bool,
+        isSubmitted: Bool,
+        isSubmitSuccessful: Bool,
         focusedFieldKey: PartialKeyPath<Fields>?,
         isDisabled: Bool
     ) {
         self.fields = fields
         self.isSubmitting = isSubmitting
+        self.isSubmitted = isSubmitted
+        self.isSubmitSuccessful = isSubmitSuccessful
         self.focusedFieldKey = focusedFieldKey
         self.isDisabled = isDisabled
     }
@@ -146,16 +165,15 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
 
     public init(
         fields: Fields,
-        options: FormCraftOptions = .init(
-            shouldFocusError: true,
-            shouldDisableOnSubmit: true
-        )
+        options: FormCraftOptions
     ) {
         self.fields = fields
         self.options = options
         self.formState = .init(
             fields: fields,
             isSubmitting: false,
+            isSubmitted: false,
+            isSubmitSuccessful: false,
             focusedFieldKey: nil,
             isDisabled: false
         )
@@ -380,14 +398,16 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
     }
 
     public func handleSubmit(
-        onSuccess: @escaping (_ data: FormCraftValidatedFields<Fields>) async -> Void
+        onSuccess: @escaping (_ data: FormCraftValidatedFields<Fields>) async -> Void,
+        options: FormCraftHandleSubmitOptions = .init()
     ) -> () -> Void {
         { [weak self] in
             guard let self else { return }
 
             self.formState.isSubmitting = true
+            self.formState.isSubmitted = true
 
-            if self.options.shouldDisableOnSubmit {
+            if options.shouldDisable == true {
                 self.formState.isDisabled = true
             }
 
@@ -397,7 +417,7 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
                 defer {
                     self.formState.isSubmitting = false
 
-                    if self.options.shouldDisableOnSubmit {
+                    if options.shouldDisable == true {
                         self.formState.isDisabled = false
                     }
                 }
@@ -409,6 +429,8 @@ public final class FormCraft<Fields: FormCraftFields>: FormCraftConfig {
                 await onSuccess(
                     FormCraftValidatedFields(fields: self.fields)
                 )
+
+                self.formState.isSubmitSuccessful = true
             }
         }
     }
