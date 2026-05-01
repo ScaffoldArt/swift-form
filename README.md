@@ -91,10 +91,12 @@ struct LoginFormView: View {
         }
     }
 }
+```
 
 ## CHANGELOG
 
 [CHANGELOG](/CHANGELOG.md)
+
 ## License
 
 [MIT](/LICENSE)
