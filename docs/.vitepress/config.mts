@@ -35,6 +35,7 @@ export default defineConfig({
           { text: 'SAForm', link: '/api/saform' },
           { text: 'SAFormFields', link: '/api/saFormFields' },
           { text: 'SAFormGroup', link: '/api/saFormGroup' },
+          { text: 'SAFormCollection', link: '/api/saFormCollection' },
           { text: 'SAFormField', link: '/api/saFormField' },
           { text: 'SAFormView', link: '/api/saFormView' },
           { text: 'SAFormControllerView', link: '/api/saFormControllerView' }

@@ -78,9 +78,9 @@ public struct SAFormHandleSubmitOptions {
     public let shouldDisable: Bool?
 
     public init(
-        shouldDisabled: Bool? = nil
+        shouldDisable: Bool? = nil
     ) {
-        self.shouldDisable = shouldDisabled
+        self.shouldDisable = shouldDisable
     }
 }
 
@@ -165,7 +165,7 @@ public final class SAForm<Fields: SAFormFields>: SAFormConfig {
 
     public init(
         fields: Fields,
-        options: SAFormOptions
+        options: SAFormOptions = .init()
     ) {
         self.fields = fields
         self.options = options
