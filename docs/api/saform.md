@@ -3,7 +3,6 @@
 `SAForm` is the main form controller in the library.
 It coordinates form state and validation, and provides the public API for working with a form.
 
-
 ## Constructor
 
 ```swift
@@ -14,61 +13,78 @@ init(
 ```
 
 ### Arguments
-- **fields: Fields** - a structure of fields conforming to [`SAFormFields`](/api/saFormFields). It describes all fields, their initial values, and validation rules.
-- **options: SAFormOptions** - global form behavior options.
+- **`fields: Fields`** - a structure conforming to [`SAFormFields`](/api/saFormFields).
+- **`options: SAFormOptions`** - global form behavior options.
 
-  | Property | Type | Default | Description |
-  |---|---|---|---|
-  | `shouldFocusError` | `Bool` | `true` | Enables automatic focus on the first mounted field that currently has validation errors. |
+`SAFormOptions`:
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `shouldFocusError` | `Bool` | `true` | Focuses the first mounted field with an error after validation/setErrors. |
 
 ## Properties
 
-- **`fields: Fields`** - current form fields state (provided via `init(fields: Fields, options: SAFormOptions)`).  
-- **`options: SAFormOptions`** - global options used by the form controller.  
+- **`fields: Fields`** - current form fields.
+- **`options: SAFormOptions`** - form options.
+- **`formState: SAFormFormState<Fields>`** - aggregated form state.
 
-- **`formState: SAFormFormState<Fields>`** - overall form state.  
-  Contains:  
+`formState` includes:
 
-  | Property | Type | Default | Description |
-  |---|---|---|---|
-  | `isSubmitting` | `Bool` | `false` | Indicates whether the submit flow is currently running. |
-  | `focusedFieldKey` | `PartialKeyPath<Fields>?` | `nil` | Key path of the field that should be focused, or `nil`. |
+| Property | Type | Description |
+|---|---|---|
+| `isSubmitting` | `Bool` | `true` while submit action is running. |
+| `isSubmitted` | `Bool` | `true` after first submit attempt. |
+| `isSubmitSuccessful` | `Bool` | `true` after successful submit. |
+| `focusedFieldKey` | `PartialKeyPath<Fields>?` | Field currently requested for focus. |
+| `isDisabled` | `Bool` | Disables all controlled fields in `SAFormControllerView`. |
+| `isValidating` | `Bool` | `true` when at least one field is validating. |
+| `isDirty` | `Bool` | `true` when at least one field differs from its default value. |
 
 ## Methods
 
-### Setting values
+### Defaults
 
-- **`setDefaultValues(_ pairs: repeat (WritableKeyPath<Fields, Field>, Field.Value))`** - updates default and current values for provided fields.  
-
----
+- **`setDefaultValue(key:value:)`** - updates one field's `value` and `defaultValue`, clears errors, resets `isDirty`.
+- **`setDefaultValues(_:)`** - same for multiple fields.
 
 ### Errors
 
-- **`setErrors(_ pairs: repeat (KeyPath<Fields, Field>, SAFormFailure), options: SAFormSetErrorsOptions = .init())`** - sets errors by key paths.  
-- **`setErrors(errors: [String: [String]], options: SAFormSetErrorsOptions = .init())`** - sets errors by field names.  
-  Supports nested field keys when you use [`SAFormGroup`](/api/saFormGroup), for example: `"delivery.zipCode"` or `"customer.email"`.
-- **`clearError<Field: SAFormFieldConfigurable>(key: KeyPath<Fields, Field>)`** - clears the error of a specific field.  
-- **`clearErrors()`** - clears all errors.  
+- **`setErrors(_ pairs: repeat (KeyPath<Fields, Field>, SAFormFailure), options: SAFormSetErrorsOptions = .init())`** - sets errors by key paths.
+- **`setErrors(errors: [String: [String]], options: SAFormSetErrorsOptions = .init())`** - sets errors by field names (`"group.field"` paths are supported).
+- **`clearError(key:)`** - clears one field error.
+- **`clearErrors()`** - clears all field errors.
 
----
+`SAFormSetErrorsOptions`:
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `shouldFocusError` | `Bool?` | `nil` | Overrides `SAFormOptions.shouldFocusError` for this call. |
 
 ### Focus
 
-- **`setFocus<Field: SAFormFieldConfigurable>(key: KeyPath<Fields, Field>?)`** - sets or clears focused field key.
-
----
+- **`setFocus(key:)`** - sets requested focus to a specific field key path or clears focus with `nil`.
 
 ### Validation
 
-- **`validateField<Field: SAFormFieldConfigurable>(key: KeyPath<Fields, Field>) async -> Bool`** - asynchronously validates a single field.  
-- **`validateFields()`** - validates all fields and returns `true` if there are no errors.  
+- **`validateFieldOnChange(key:) async -> Bool`** - validates one field with its `delayValidation` policy.
+- **`validateFields(_ keys: PartialKeyPath<Fields>..., options: SAFormValidateFieldsOptions = .init()) async -> Bool`** - validates all fields or only selected keys.
 
----
+`SAFormValidateFieldsOptions`:
 
-### Form submission
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `shouldFocusError` | `Bool?` | `nil` | Overrides default focus-on-error behavior. |
+| `shouldDisable` | `Bool?` | `nil` | This option is available in the API; in the current version, `validateFields` does not use it. |
 
-- **`handleSubmit(onSuccess: @escaping (_ data: SAFormValidatedFields<Fields>) async -> Void) -> () -> Void`** - returns a closure intended for submit actions (for example, a button action).  
-  It validates form data and calls `onSuccess` only when the form is valid.
+### Submit
+
+- **`handleSubmit(onSuccess:options:) -> () -> Void`** - returns submit action closure; validates fields first, calls `onSuccess` only on valid data.
+
+`SAFormHandleSubmitOptions`:
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `shouldDisable` | `Bool?` | `nil` | Temporarily sets `formState.isDisabled = true` during submit. |
 
 Example:
 
@@ -94,3 +110,4 @@ private func onSubmit(
 }
 
 Button("Submit", action: form.handleSubmit(onSuccess: onSubmit))
+```
