@@ -15,7 +15,7 @@ Supported platforms:
 3. Paste:
 
 ```txt
-https://github.com/ArtyCodingart/scaffold-art
+https://github.com/ScaffoldArt/swift-form
 ```
 
 4. Add `SAForm` to your app target.
@@ -24,7 +24,7 @@ https://github.com/ArtyCodingart/scaffold-art
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/ArtyCodingart/scaffold-art", from: "x.y.z")
+    .package(url: "https://github.com/ScaffoldArt/swift-form", from: "x.y.z")
 ]
 ```
 

@@ -2,10 +2,10 @@
 
 <img src="docs/public/scaffold-art-start-logo.png" alt="SAForm" width="256" height="256" />
 
-![GitHub Release](https://img.shields.io/github/v/release/ArtyCodingart/scaffold-art?color=%239a60fe)
+![GitHub Release](https://img.shields.io/github/v/release/ScaffoldArt/swift-form?color=%239a60fe)
 ![Static Badge](https://img.shields.io/badge/iOS-17%2B-test?logo=apple)
-![GitHub License](https://img.shields.io/github/license/ArtyCodingart/scaffold-art)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ArtyCodingart/scaffold-art/tests.yml?branch=main)
+![GitHub License](https://img.shields.io/github/license/ScaffoldArt/swift-form)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ScaffoldArt/swift-form/tests.yml?branch=main)
 [![DOCS](https://img.shields.io/badge/DOCS-8A2BE2)](https://scaffoldart.github.io/swift-form/)
 
 

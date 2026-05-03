@@ -7,7 +7,7 @@ export default defineConfig({
   lang: 'en',
   description: "Build better forms with a simple and flexible validation library for Swift and SwiftUI",
   head: [
-    ['link', { rel: 'icon', type: 'image/png', href: '/swift-form/scaffold-art-logo-icon.ico' }],
+    ['link', { rel: 'icon', type: 'image/png', href: '/scaffold-art-logo-icon.ico' }],
     ['meta', { name: 'theme-color', content: '#5f67ee' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: 'SAForm' }],
@@ -16,7 +16,7 @@ export default defineConfig({
   ],
 
   themeConfig: {
-    logo: { src: '/swift-form/scaffold-art-logo-min.png', width: 24, height: 24 },
+    logo: { src: '/scaffold-art-logo-min.png', width: 24, height: 24 },
 
     // https://vitepress.dev/reference/default-theme-config
     nav: [
@@ -71,7 +71,7 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/ArtyCodingart/scaffold-art' }
+      { icon: 'github', link: 'https://github.com/ScaffoldArt/swift-form' }
     ],
 
     search: {
