@@ -1,12 +1,12 @@
-# Form Craft
+# SAForm
 
-<img src="docs/public/form-craft-start-logo.png" alt="FormCraft" width="256" height="256" />
+<img src="docs/public/scaffold-art-start-logo.png" alt="SAForm" width="256" height="256" />
 
-![GitHub Release](https://img.shields.io/github/v/release/ArtyCodingart/form-craft?color=%239a60fe)
+![GitHub Release](https://img.shields.io/github/v/release/ArtyCodingart/scaffold-art?color=%239a60fe)
 ![Static Badge](https://img.shields.io/badge/iOS-17%2B-test?logo=apple)
-![GitHub License](https://img.shields.io/github/license/ArtyCodingart/form-craft)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ArtyCodingart/form-craft/tests.yml?branch=main)
-[![DOCS](https://img.shields.io/badge/DOCS-8A2BE2)](https://artycodingart.github.io/form-craft/)
+![GitHub License](https://img.shields.io/github/license/ArtyCodingart/scaffold-art)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ArtyCodingart/scaffold-art/tests.yml?branch=main)
+[![DOCS](https://img.shields.io/badge/DOCS-8A2BE2)](https://scaffoldart.github.io/swift-form/)
 
 
 Build better forms with a simple and flexible validation library for Swift and SwiftUI.
@@ -24,12 +24,12 @@ Build better forms with a simple and flexible validation library for Swift and S
 
 ```swift
 import SwiftUI
-import FormCraft
+import SAForm
 
-@FormCraft
-private struct LoginFormFields: FormCraftFields {
-    var login = FormCraftField(value: "") { value in
-        await FormCraftValidationRules()
+@SAForm
+private struct LoginFormFields: SAFormFields {
+    var login = SAFormField(value: "") { value in
+        await SAFormValidationRules()
             .string()
             .trimmed()
             .notEmpty()
@@ -37,8 +37,8 @@ private struct LoginFormFields: FormCraftFields {
             .validate(value: value)
     }
 
-    var password = FormCraftField(value: "") { value in
-        await FormCraftValidationRules()
+    var password = SAFormField(value: "") { value in
+        await SAFormValidationRules()
             .string()
             .trimmed()
             .notEmpty()
@@ -47,10 +47,10 @@ private struct LoginFormFields: FormCraftFields {
 }
 
 struct LoginFormView: View {
-    @State private var loginForm = FormCraft(fields: LoginFormFields())
+    @State private var loginForm = SAForm(fields: LoginFormFields())
 
     private func handleLogin(
-        data: FormCraftValidatedFields<LoginFormFields>
+        data: SAFormValidatedFields<LoginFormFields>
     ) async {
         print(data.login)
         print(data.password)
@@ -58,8 +58,8 @@ struct LoginFormView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            FormCraftView(formConfig: loginForm) {
-                FormCraftControllerView(
+            SAFormView(formConfig: loginForm) {
+                SAFormControllerView(
                     formConfig: loginForm,
                     key: \.login
                 ) { value, field in
@@ -72,7 +72,7 @@ struct LoginFormView: View {
                     }
                 }
 
-                FormCraftControllerView(
+                SAFormControllerView(
                     formConfig: loginForm,
                     key: \.password
                 ) { value, field in

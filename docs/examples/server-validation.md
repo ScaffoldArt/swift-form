@@ -2,7 +2,7 @@
 
 ```swift
 import SwiftUI
-import FormCraft
+import SAForm
 
 private func checkExistEmail(email: String) async -> Bool {
     try? await Task.sleep(nanoseconds: 3_000_000_000)
@@ -18,10 +18,10 @@ private func checkExistEmail(email: String) async -> Bool {
     return !existingEmails.contains(email)
 }
 
-@FormCraft
-private struct LoginFormFields: FormCraftFields {
-    var login = FormCraftField(value: "") { value in
-        let validationResult = await FormCraftValidationRules()
+@SAForm
+private struct LoginFormFields: SAFormFields {
+    var login = SAFormField(value: "") { value in
+        let validationResult = await SAFormValidationRules()
             .string()
             .trimmed()
             .notEmpty()
@@ -41,8 +41,8 @@ private struct LoginFormFields: FormCraftFields {
         return .failure(errors: .init(["Email already exists"]))
     }
 
-    var password = FormCraftField(value: "") { value in
-        await FormCraftValidationRules()
+    var password = SAFormField(value: "") { value in
+        await SAFormValidationRules()
             .string()
             .trimmed()
             .notEmpty()
@@ -51,10 +51,10 @@ private struct LoginFormFields: FormCraftFields {
 }
 
 struct ServerValidationFormView: View {
-    @State private var loginForm = FormCraft(fields: LoginFormFields())
+    @State private var loginForm = SAForm(fields: LoginFormFields())
 
     private func handleLogin(
-        data: FormCraftValidatedFields<LoginFormFields>
+        data: SAFormValidatedFields<LoginFormFields>
     ) async {
         print(data.login)
         print(data.password)
@@ -62,8 +62,8 @@ struct ServerValidationFormView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            FormCraftView(formConfig: loginForm) {
-                FormCraftControllerView(
+            SAFormView(formConfig: loginForm) {
+                SAFormControllerView(
                     formConfig: loginForm,
                     key: \.login
                 ) { value, field in
@@ -80,7 +80,7 @@ struct ServerValidationFormView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                FormCraftControllerView(
+                SAFormControllerView(
                     formConfig: loginForm,
                     key: \.password
                 ) { value, field in

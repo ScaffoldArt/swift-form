@@ -12,7 +12,7 @@ Value must not be an empty string.
 - `message: LocalizedStringResource?` – optional custom error message if empty
 
 ```swift
-let notEmpty = FormCraftValidationRules()
+let notEmpty = SAFormValidationRules()
   .string()
   .notEmpty()
 
@@ -28,7 +28,7 @@ No leading or trailing whitespace is allowed.
 - `message: LocalizedStringResource?` – optional custom error message if whitespace is found
 
 ```swift
-let trimmed = FormCraftValidationRules()
+let trimmed = SAFormValidationRules()
   .string()
   .trimmed()
 
@@ -45,7 +45,7 @@ Minimum length requirement.
 - `message: ((Int) -> LocalizedStringResource)?` – optional custom error message builder
 
 ```swift
-let minRule = FormCraftValidationRules()
+let minRule = SAFormValidationRules()
   .string()
   .min(min: 3)
 
@@ -62,7 +62,7 @@ Maximum length limit.
 - `message: ((Int) -> LocalizedStringResource)?` – optional custom error message builder
 
 ```swift
-let maxRule = FormCraftValidationRules()
+let maxRule = SAFormValidationRules()
   .string()
   .max(max: 5)
 
@@ -79,7 +79,7 @@ Exact length requirement.
 - `message: ((Int) -> LocalizedStringResource)?` – optional custom error message builder
 
 ```swift
-let lengthRule = FormCraftValidationRules()
+let lengthRule = SAFormValidationRules()
   .string()
   .length(length: 6)
 
@@ -96,7 +96,7 @@ Value must be equal to the given string.
 - `message: ((String, String) -> LocalizedStringResource)?` – optional custom error message builder
 
 ```swift
-let equalsRule = FormCraftValidationRules()
+let equalsRule = SAFormValidationRules()
   .string()
   .equals(to: "secret")
 
@@ -113,7 +113,7 @@ Validation against a custom regex pattern.
 - `message: LocalizedStringResource?` – optional custom error message if pattern does not match
 
 ```swift
-let code4Digits = FormCraftValidationRules()
+let code4Digits = SAFormValidationRules()
   .string()
   .regex(pattern: /^[0-9]{4}$/)
 
@@ -129,7 +129,7 @@ Value must be a valid CUID.
 - `message: LocalizedStringResource?` – optional custom error message if invalid
 
 ```swift
-let cuidRule = FormCraftValidationRules()
+let cuidRule = SAFormValidationRules()
   .string()
   .cuid()
 
@@ -145,7 +145,7 @@ Value must be a valid CUID2.
 - `message: LocalizedStringResource?` – optional custom error message if invalid
 
 ```swift
-let cuid2Rule = FormCraftValidationRules()
+let cuid2Rule = SAFormValidationRules()
   .string()
   .cuid2()
 
@@ -161,7 +161,7 @@ Value must be a valid ULID.
 - `message: LocalizedStringResource?` – optional custom error message if invalid
 
 ```swift
-let ulidRule = FormCraftValidationRules()
+let ulidRule = SAFormValidationRules()
   .string()
   .ulid()
 
@@ -177,7 +177,7 @@ Value must be a valid UUID.
 - `message: LocalizedStringResource?` – optional custom error message if invalid
 
 ```swift
-let uuidRule = FormCraftValidationRules()
+let uuidRule = SAFormValidationRules()
   .string()
   .uuid()
 
@@ -193,7 +193,7 @@ Value must be a valid NanoID (21 chars).
 - `message: LocalizedStringResource?` – optional custom error message if invalid
 
 ```swift
-let nanoIdRule = FormCraftValidationRules()
+let nanoIdRule = SAFormValidationRules()
   .string()
   .nanoId()
 
@@ -209,7 +209,7 @@ IPv4 address format validation.
 - `message: LocalizedStringResource?` – optional custom error message if invalid
 
 ```swift
-let ipv4Rule = FormCraftValidationRules()
+let ipv4Rule = SAFormValidationRules()
   .string()
   .ipv4()
 
@@ -225,7 +225,7 @@ IPv6 address format validation.
 - `message: LocalizedStringResource?` – optional custom error message if invalid
 
 ```swift
-let ipv6Rule = FormCraftValidationRules()
+let ipv6Rule = SAFormValidationRules()
   .string()
   .ipv6()
 
@@ -241,7 +241,7 @@ IPv4 CIDR notation validation.
 - `message: LocalizedStringResource?` – optional custom error message if invalid
 
 ```swift
-let cidrv4Rule = FormCraftValidationRules()
+let cidrv4Rule = SAFormValidationRules()
   .string()
   .cidrv4()
 
@@ -257,7 +257,7 @@ IPv6 CIDR notation validation.
 - `message: LocalizedStringResource?` – optional custom error message if invalid
 
 ```swift
-let cidrv6Rule = FormCraftValidationRules()
+let cidrv6Rule = SAFormValidationRules()
   .string()
   .cidrv6()
 
@@ -273,7 +273,7 @@ Date string in the format `YYYY-MM-DD` (leap-year aware).
 - `message: LocalizedStringResource?` – optional custom error message if invalid
 
 ```swift
-let isoDateRule = FormCraftValidationRules()
+let isoDateRule = SAFormValidationRules()
   .string()
   .isoDate()
 
@@ -289,7 +289,7 @@ Email format validation.
 - `message: LocalizedStringResource?` – optional custom error message if invalid
 
 ```swift
-let emailRule = FormCraftValidationRules()
+let emailRule = SAFormValidationRules()
   .string()
   .email()
 
@@ -305,7 +305,7 @@ E.164-like phone number validation.
 - `message: LocalizedStringResource?` – optional custom error message if invalid
 
 ```swift
-let phoneRule = FormCraftValidationRules()
+let phoneRule = SAFormValidationRules()
   .string()
   .e164phoneNumber()
 
@@ -322,7 +322,7 @@ Value must start with the given prefix.
 - `message: ((String) -> LocalizedStringResource)?` – optional custom error message builder
 
 ```swift
-let startsWithRule = FormCraftValidationRules()
+let startsWithRule = SAFormValidationRules()
   .string()
   .startsWith(prefix: "Hello")
 
@@ -339,7 +339,7 @@ Value must end with the given suffix.
 - `message: ((String) -> LocalizedStringResource)?` – optional custom error message builder
 
 ```swift
-let endsWithRule = FormCraftValidationRules()
+let endsWithRule = SAFormValidationRules()
   .string()
   .endsWith(suffix: ".com")
 
@@ -356,7 +356,7 @@ Value must contain the given substring.
 - `message: ((String) -> LocalizedStringResource)?` – optional custom error message builder
 
 ```swift
-let includesRule = FormCraftValidationRules()
+let includesRule = SAFormValidationRules()
   .string()
   .includes(substring: "@")
 
@@ -372,7 +372,7 @@ Value must be fully uppercase.
 - `message: LocalizedStringResource?` – optional custom error message if value is not uppercase
 
 ```swift
-let uppercaseRule = FormCraftValidationRules()
+let uppercaseRule = SAFormValidationRules()
   .string()
   .uppercase()
 
@@ -388,7 +388,7 @@ Value must be fully lowercase.
 - `message: LocalizedStringResource?` – optional custom error message if value is not lowercase
 
 ```swift
-let lowercaseRule = FormCraftValidationRules()
+let lowercaseRule = SAFormValidationRules()
   .string()
   .lowercase()
 

@@ -16,7 +16,7 @@ Strictly greater than the specified number.
 - `message: ((T) -> LocalizedStringResource)?` - optional custom error message builder
 
 ```swift
-let greaterThan = FormCraftValidationRules()
+let greaterThan = SAFormValidationRules()
   .integer()
   .gt(num: 10)
 
@@ -33,7 +33,7 @@ Greater than or equal to the specified number.
 - `message: ((T) -> LocalizedStringResource)?` - optional custom error message builder
 
 ```swift
-let greaterOrEqual = FormCraftValidationRules()
+let greaterOrEqual = SAFormValidationRules()
   .integer()
   .gte(num: 10)
 
@@ -50,7 +50,7 @@ Strictly less than the specified number.
 - `message: ((T) -> LocalizedStringResource)?` - optional custom error message builder
 
 ```swift
-let lessThan = FormCraftValidationRules()
+let lessThan = SAFormValidationRules()
   .integer()
   .lt(num: 100)
 
@@ -67,7 +67,7 @@ Less than or equal to the specified number.
 - `message: ((T) -> LocalizedStringResource)?` - optional custom error message builder
 
 ```swift
-let lessOrEqual = FormCraftValidationRules()
+let lessOrEqual = SAFormValidationRules()
   .integer()
   .lte(num: 100)
 
@@ -83,7 +83,7 @@ Positive number (greater than zero).
 - `message: LocalizedStringResource?` - error message if the value is not positive
 
 ```swift
-let positive = FormCraftValidationRules()
+let positive = SAFormValidationRules()
   .integer()
   .positive()
 
@@ -99,7 +99,7 @@ Zero or positive.
 - `message: LocalizedStringResource?` - error message if the value is negative
 
 ```swift
-let nonNegative = FormCraftValidationRules()
+let nonNegative = SAFormValidationRules()
   .integer()
   .nonNegative()
 
@@ -115,7 +115,7 @@ Negative number (less than zero).
 - `message: LocalizedStringResource?` - error message if the value is not negative
 
 ```swift
-let negative = FormCraftValidationRules()
+let negative = SAFormValidationRules()
   .integer()
   .negative()
 
@@ -131,7 +131,7 @@ Zero or negative.
 - `message: LocalizedStringResource?` - error message if the value is positive
 
 ```swift
-let nonPositive = FormCraftValidationRules()
+let nonPositive = SAFormValidationRules()
   .integer()
   .nonPositive()
 
@@ -148,7 +148,7 @@ Checks that the value is divisible by the specified number.
 - `message: ((T) -> LocalizedStringResource)?` - optional custom error message builder
 
 ```swift
-let multipleOf = FormCraftValidationRules()
+let multipleOf = SAFormValidationRules()
   .integer()
   .multipleOf(num: 5)
 

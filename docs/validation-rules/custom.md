@@ -7,7 +7,7 @@ Use it for domain objects and custom value types that are not covered by built-i
 ## Why Use It
 
 - To validate domain models (`User`, `Address`, `Money`, etc.).
-- To support external value types that are not built into FormCraft.
+- To support external value types that are not built into SAForm.
 
 ## When to use it
 
@@ -23,7 +23,7 @@ struct User: Sendable {
   let age: Int
 }
 
-let userValidation = FormCraftValidationRules()
+let userValidation = SAFormValidationRules()
   .custom(User.self)
   .addRule { user in
     if user.firstName.isEmpty {
@@ -45,7 +45,7 @@ let result = await userValidation.validate(value: .init(firstName: "Alex", age: 
 
 ## Reusing Built-In Rules Inside `addRule`
 
-You can call `FormCraftValidationRules` inside `addRule` and map nested validation errors back to the current custom value.
+You can call `SAFormValidationRules` inside `addRule` and map nested validation errors back to the current custom value.
 
 ```swift
 struct User: Sendable {
@@ -53,10 +53,10 @@ struct User: Sendable {
   let age: Int
 }
 
-let validator = FormCraftValidationRules()
+let validator = SAFormValidationRules()
   .custom(User.self)
   .addRule { user in
-    let emailResult = await FormCraftValidationRules()
+    let emailResult = await SAFormValidationRules()
       .string()
       .notEmpty()
       .email()
@@ -69,7 +69,7 @@ let validator = FormCraftValidationRules()
     return .success(value: user)
   }
   .addRule { user in
-    let ageResult = await FormCraftValidationRules()
+    let ageResult = await SAFormValidationRules()
       .integer()
       .gte(num: 18)
       .validate(value: user.age)

@@ -3,20 +3,20 @@ import { defineConfig } from 'vitepress'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   base: '/swift-form/',
-  title: "Form Craft",
+  title: "SAForm",
   lang: 'en',
   description: "Build better forms with a simple and flexible validation library for Swift and SwiftUI",
   head: [
-    ['link', { rel: 'icon', type: 'image/png', href: '/form-craft/form-craft-logo-icon.ico' }],
+    ['link', { rel: 'icon', type: 'image/png', href: '/swift-form/scaffold-art-logo-icon.ico' }],
     ['meta', { name: 'theme-color', content: '#5f67ee' }],
     ['meta', { property: 'og:type', content: 'website' }],
-    ['meta', { property: 'og:site_name', content: 'FormCraft' }],
-    ['meta', { property: 'og:image', content: 'https://artycodingart.github.io/form-craft/formcraft-og.png' }],
-    ['meta', { property: 'og:url', content: 'https://artycodingart.github.io/form-craft/' }]
+    ['meta', { property: 'og:site_name', content: 'SAForm' }],
+    ['meta', { property: 'og:image', content: 'https://scaffoldart.github.io/swift-form/scaffoldart-og.png' }],
+    ['meta', { property: 'og:url', content: 'https://scaffoldart.github.io/swift-form/' }]
   ],
 
   themeConfig: {
-    logo: { src: '/form-craft-logo-min.png', width: 24, height: 24 },
+    logo: { src: '/swift-form/scaffold-art-logo-min.png', width: 24, height: 24 },
 
     // https://vitepress.dev/reference/default-theme-config
     nav: [
@@ -32,12 +32,12 @@ export default defineConfig({
       {
         text: 'API',
         items: [
-          { text: 'FormCraft', link: '/api/formcraft' },
-          { text: 'FormCraftFields', link: '/api/formCraftFields' },
-          { text: 'FormCraftGroup', link: '/api/formCraftGroup' },
-          { text: 'FormCraftField', link: '/api/formCraftField' },
-          { text: 'FormCraftView', link: '/api/formCraftView' },
-          { text: 'FormCraftControllerView', link: '/api/formCraftControllerView' }
+          { text: 'SAForm', link: '/api/saform' },
+          { text: 'SAFormFields', link: '/api/saFormFields' },
+          { text: 'SAFormGroup', link: '/api/saFormGroup' },
+          { text: 'SAFormField', link: '/api/saFormField' },
+          { text: 'SAFormView', link: '/api/saFormView' },
+          { text: 'SAFormControllerView', link: '/api/saFormControllerView' }
         ]
       },
       {
@@ -71,7 +71,7 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/ArtyCodingart/form-craft' }
+      { icon: 'github', link: 'https://github.com/ArtyCodingart/scaffold-art' }
     ],
 
     search: {

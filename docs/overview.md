@@ -1,8 +1,8 @@
 # Overview
 
-FormCraft is a validation-first library for SwiftUI forms. It gives you one consistent flow: collect input, validate it (including async and cross-field checks), and submit typed trusted data.
+SAForm is a validation-first library for SwiftUI forms. It gives you one consistent flow: collect input, validate it (including async and cross-field checks), and submit typed trusted data.
 
-## Why Teams Choose FormCraft
+## Why Teams Choose SAForm
 
 Many SwiftUI codebases do not have a single end-to-end form model. As a result, teams often combine local `@State`, view-level checks, and custom submit handlers.
 
@@ -27,9 +27,9 @@ As forms become larger, common issues appear:
 
 These problems are common in product teams. Form behavior is difficult to keep stable without one clear pipeline.
 
-FormCraft provides that pipeline. It works naturally with SwiftUI and scales from simple forms to complex flows.
+SAForm provides that pipeline. It works naturally with SwiftUI and scales from simple forms to complex flows.
 
-With FormCraft, you can:
+With SAForm, you can:
 
 - Replace scattered form code with a consistent typed flow
 - Keep validation rules close to field definitions
@@ -41,12 +41,12 @@ With FormCraft, you can:
 
 ```swift
 import SwiftUI
-import FormCraft
+import SAForm
 
-@FormCraft
-private struct LoginFields: FormCraftFields {
-    var email = FormCraftField(value: "") { value in
-        await FormCraftValidationRules()
+@SAForm
+private struct LoginFields: SAFormFields {
+    var email = SAFormField(value: "") { value in
+        await SAFormValidationRules()
             .string()
             .trimmed()
             .notEmpty()
@@ -54,8 +54,8 @@ private struct LoginFields: FormCraftFields {
             .validate(value: value)
     }
 
-    var password = FormCraftField(value: "") { value in
-        await FormCraftValidationRules()
+    var password = SAFormField(value: "") { value in
+        await SAFormValidationRules()
             .string()
             .trimmed()
             .notEmpty()
@@ -65,12 +65,12 @@ private struct LoginFields: FormCraftFields {
 }
 
 struct LoginView: View {
-    @State private var form = FormCraft(fields: LoginFields())
+    @State private var form = SAForm(fields: LoginFields())
 
     var body: some View {
         VStack(spacing: 12) {
-            FormCraftView(formConfig: form) {
-                FormCraftControllerView(formConfig: form, key: \.email) { value, field in
+            SAFormView(formConfig: form) {
+                SAFormControllerView(formConfig: form, key: \.email) { value, field in
                     TextField("Email", text: value)
                         .textFieldStyle(.roundedBorder)
 
@@ -79,7 +79,7 @@ struct LoginView: View {
                     }
                 }
 
-                FormCraftControllerView(formConfig: form, key: \.password) { value, field in
+                SAFormControllerView(formConfig: form, key: \.password) { value, field in
                     SecureField("Password", text: value)
                         .textFieldStyle(.roundedBorder)
 

@@ -2,7 +2,7 @@
 
 ```swift
 import SwiftUI
-import FormCraft
+import SAForm
 
 private struct PlayerService {
     struct PlayerDTO {
@@ -21,17 +21,17 @@ private struct PlayerService {
     }
 }
 
-@FormCraft
-private struct FormFields: FormCraftFields {
-    var firstName = FormCraftField(value: "") { value in
-        await FormCraftValidationRules()
+@SAForm
+private struct FormFields: SAFormFields {
+    var firstName = SAFormField(value: "") { value in
+        await SAFormValidationRules()
             .string()
             .notEmpty()
             .validate(value: value)
     }
 
-    var lastName = FormCraftField(value: "") { value in
-        await FormCraftValidationRules()
+    var lastName = SAFormField(value: "") { value in
+        await SAFormValidationRules()
             .string()
             .notEmpty()
             .validate(value: value)
@@ -39,10 +39,10 @@ private struct FormFields: FormCraftFields {
 }
 
 struct InitialValuesFormView: View {
-    @State private var form = FormCraft(fields: FormFields())
+    @State private var form = SAForm(fields: FormFields())
     private let playerService = PlayerService()
 
-    private func updatePlayer(data: FormCraftValidatedFields<FormFields>) async {
+    private func updatePlayer(data: SAFormValidatedFields<FormFields>) async {
         await playerService.updatePlayer(
             player: .init(
                 firstName: data.firstName,
@@ -62,8 +62,8 @@ struct InitialValuesFormView: View {
 
     var body: some View {
         VStack {
-            FormCraftView(formConfig: form) {
-                FormCraftControllerView(
+            SAFormView(formConfig: form) {
+                SAFormControllerView(
                     formConfig: form,
                     key: \.firstName
                 ) { value, field in
@@ -76,7 +76,7 @@ struct InitialValuesFormView: View {
                     }
                 }
 
-                FormCraftControllerView(
+                SAFormControllerView(
                     formConfig: form,
                     key: \.lastName
                 ) { value, field in
