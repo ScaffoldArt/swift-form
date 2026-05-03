@@ -11,7 +11,7 @@ hero:
       link: /getting-started
     - theme: alt
       text: GitHub
-      link: https://github.com/ArtyCodingart/scaffold-art
+      link: https://github.com/ScaffoldArt/swift-form
   image:
     src: /scaffold-art-start-logo.png
     alt: SAForm
