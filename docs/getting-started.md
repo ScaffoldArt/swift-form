@@ -2,7 +2,7 @@
 
 ## Installation
 
-FormCraft is distributed via Swift Package Manager (SPM).
+SAForm is distributed via Swift Package Manager (SPM).
 
 Supported platforms:
 - iOS 17+
@@ -15,16 +15,16 @@ Supported platforms:
 3. Paste:
 
 ```txt
-https://github.com/ArtyCodingart/form-craft
+https://github.com/ArtyCodingart/scaffold-art
 ```
 
-4. Add `FormCraft` to your app target.
+4. Add `SAForm` to your app target.
 
 ### Add with `Package.swift`
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/ArtyCodingart/form-craft", from: "x.y.z")
+    .package(url: "https://github.com/ArtyCodingart/scaffold-art", from: "x.y.z")
 ]
 ```
 
@@ -37,12 +37,12 @@ This example shows the full happy path:
 
 ```swift
 import SwiftUI
-import FormCraft
+import SAForm
 
-@FormCraft
-private struct LoginFields: FormCraftFields {
-    var email = FormCraftField(value: "") { value in
-        await FormCraftValidationRules()
+@SAForm
+private struct LoginFields: SAFormFields {
+    var email = SAFormField(value: "") { value in
+        await SAFormValidationRules()
             .string()
             .trimmed()
             .notEmpty()
@@ -50,8 +50,8 @@ private struct LoginFields: FormCraftFields {
             .validate(value: value)
     }
 
-    var password = FormCraftField(value: "") { value in
-        await FormCraftValidationRules()
+    var password = SAFormField(value: "") { value in
+        await SAFormValidationRules()
             .string()
             .trimmed()
             .notEmpty()
@@ -61,12 +61,12 @@ private struct LoginFields: FormCraftFields {
 }
 
 struct LoginFormView: View {
-    @State private var form = FormCraft(fields: LoginFields())
+    @State private var form = SAForm(fields: LoginFields())
 
     var body: some View {
         VStack(spacing: 12) {
-            FormCraftView(formConfig: form) {
-                FormCraftControllerView(formConfig: form, key: \.email) { value, field in
+            SAFormView(formConfig: form) {
+                SAFormControllerView(formConfig: form, key: \.email) { value, field in
                     TextField("Email", text: value)
                         .textFieldStyle(.roundedBorder)
 
@@ -76,7 +76,7 @@ struct LoginFormView: View {
                     }
                 }
 
-                FormCraftControllerView(formConfig: form, key: \.password) { value, field in
+                SAFormControllerView(formConfig: form, key: \.password) { value, field in
                     SecureField("Password", text: value)
                         .textFieldStyle(.roundedBorder)
 

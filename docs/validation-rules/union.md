@@ -19,30 +19,30 @@ If no validators pass, `union` returns `.failure` with merged errors from all va
 
 **Parameters**
 - `value: Any` - raw value to validate
-- `rules: repeat each Rule` - variadic validators conforming to `FormCraftValidationTypeRules`
+- `rules: repeat each Rule` - variadic validators conforming to `SAFormValidationTypeRules`
 
 **Signature**
 
 ```swift
-func union<each Rule: FormCraftValidationTypeRules>(
+func union<each Rule: SAFormValidationTypeRules>(
   _ value: Any,
   _ rules: repeat each Rule
-) async -> FormCraftValidationResponse<(repeat ((each Rule).Value)?)>
+) async -> SAFormValidationResponse<(repeat ((each Rule).Value)?)>
 ```
 
 For two rules (`string`, `integer`), success type is inferred as:
 
 ```swift
-FormCraftValidationResponse<(String?, Int?)>
+SAFormValidationResponse<(String?, Int?)>
 ```
 
 ### Example: first rule passes
 
 ```swift
-let result = await FormCraftValidationRules().union(
+let result = await SAFormValidationRules().union(
   "hello@example.com",
-  FormCraftValidationRules().string().email(),
-  FormCraftValidationRules().integer().gt(num: 0)
+  SAFormValidationRules().string().email(),
+  SAFormValidationRules().integer().gt(num: 0)
 )
 
 switch result {
@@ -63,10 +63,10 @@ case .failure(let errors):
 ### Example: second rule passes
 
 ```swift
-let result = await FormCraftValidationRules().union(
+let result = await SAFormValidationRules().union(
   42,
-  FormCraftValidationRules().string().notEmpty(),
-  FormCraftValidationRules().integer().positive()
+  SAFormValidationRules().string().notEmpty(),
+  SAFormValidationRules().integer().positive()
 )
 
 switch result {
@@ -87,10 +87,10 @@ case .failure(let errors):
 ### Example: multiple rules pass
 
 ```swift
-let result = await FormCraftValidationRules().union(
+let result = await SAFormValidationRules().union(
   "42",
-  FormCraftValidationRules().string().notEmpty(),
-  FormCraftValidationRules().string().regex(/^\d+$/)
+  SAFormValidationRules().string().notEmpty(),
+  SAFormValidationRules().string().regex(/^\d+$/)
 )
 
 switch result {

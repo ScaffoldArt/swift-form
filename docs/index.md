@@ -3,7 +3,7 @@
 layout: home
 
 hero:
-  name: "Form Craft"
+  name: "SAForm"
   tagline: "From raw input to trusted data - the fastest way to build SwiftUI forms"
   actions:
     - theme: brand
@@ -11,10 +11,10 @@ hero:
       link: /getting-started
     - theme: alt
       text: GitHub
-      link: https://github.com/ArtyCodingart/form-craft
+      link: https://github.com/ArtyCodingart/scaffold-art
   image:
-    src: /form-craft-start-logo.png
-    alt: FormCraft
+    src: /scaffold-art-start-logo.png
+    alt: SAForm
 
 features:
   - icon: 🚀

@@ -3,7 +3,7 @@ import PackageDescription
 import CompilerPluginSupport
 
 let package = Package(
-    name: "FormCraft",
+    name: "SAForm",
     defaultLocalization: "en",
     platforms: [
         .iOS(.v17),
@@ -11,8 +11,8 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "FormCraft",
-            targets: ["FormCraft"]
+            name: "SAForm",
+            targets: ["SAForm"]
         ),
     ],
     dependencies: [
@@ -20,20 +20,20 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "FormCraft",
-            dependencies: ["FormCraftMacros"],
+            name: "SAForm",
+            dependencies: ["SAFormMacros"],
             resources: [.process("Resources")]
         ),
         .macro(
-            name: "FormCraftMacros",
+            name: "SAFormMacros",
             dependencies: [
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
             ]
         ),
         .testTarget(
-            name: "FormCraftTests",
-            dependencies: ["FormCraft"]
+            name: "SAFormTests",
+            dependencies: ["SAForm"]
         ),
     ]
 )

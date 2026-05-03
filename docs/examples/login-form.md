@@ -2,12 +2,12 @@
 
 ```swift
 import SwiftUI
-import FormCraft
+import SAForm
 
-@FormCraft
-private struct LoginFormFields: FormCraftFields {
-    var login = FormCraftField(value: "") { value in
-        await FormCraftValidationRules()
+@SAForm
+private struct LoginFormFields: SAFormFields {
+    var login = SAFormField(value: "") { value in
+        await SAFormValidationRules()
             .string()
             .trimmed()
             .notEmpty()
@@ -15,8 +15,8 @@ private struct LoginFormFields: FormCraftFields {
             .validate(value: value)
     }
 
-    var password = FormCraftField(value: "") { value in
-        await FormCraftValidationRules()
+    var password = SAFormField(value: "") { value in
+        await SAFormValidationRules()
             .string()
             .trimmed()
             .notEmpty()
@@ -25,10 +25,10 @@ private struct LoginFormFields: FormCraftFields {
 }
 
 struct LoginFormView: View {
-    @State private var loginForm = FormCraft(fields: LoginFormFields())
+    @State private var loginForm = SAForm(fields: LoginFormFields())
 
     private func handleLogin(
-        data: FormCraftValidatedFields<LoginFormFields>
+        data: SAFormValidatedFields<LoginFormFields>
     ) async {
         print(data.login)
         print(data.password)
@@ -36,8 +36,8 @@ struct LoginFormView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            FormCraftView(formConfig: loginForm) {
-                FormCraftControllerView(
+            SAFormView(formConfig: loginForm) {
+                SAFormControllerView(
                     formConfig: loginForm,
                     key: \.login
                 ) { value, field in
@@ -50,7 +50,7 @@ struct LoginFormView: View {
                     }
                 }
 
-                FormCraftControllerView(
+                SAFormControllerView(
                     formConfig: loginForm,
                     key: \.password
                 ) { value, field in

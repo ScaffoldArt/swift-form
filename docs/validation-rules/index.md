@@ -2,13 +2,13 @@
 
 ## Example usage
 
-FormCraft includes built-in validation rules out of the box.
+SAForm includes built-in validation rules out of the box.
 You can also define your own custom rules when needed.
 
-FormCraft provides `FormCraftValidationRules` with rule builders like `.string()`, `.integer()`, `.floating()`, `.decimal()`, `.boolean()`, `.custom()`, and others.
+SAForm provides `SAFormValidationRules` with rule builders like `.string()`, `.integer()`, `.floating()`, `.decimal()`, `.boolean()`, `.custom()`, and others.
 
 ```swift
-await FormCraftValidationRules()
+await SAFormValidationRules()
   .string()
   .notEmpty()
   .email()
@@ -34,8 +34,8 @@ For example, `.trimmed()` can enforce normalized input before later checks.
 All validation rules provide two method signatures:
 
 ```swift
-func validate(raw: Any?) async -> FormCraftValidationResponse<Value>
-func validate(value: Value) async -> FormCraftValidationResponse<Value>
+func validate(raw: Any?) async -> SAFormValidationResponse<Value>
+func validate(value: Value) async -> SAFormValidationResponse<Value>
 ```
 
 `Value` is inferred from the rule type.
@@ -44,9 +44,9 @@ For example, `.string()` gives `String`, `.integer()` gives `Int`, `.floating()`
 Use `validate(raw: Any?)` when you have an untyped value at runtime.
 Use `validate(value: Value)` when value type is already known.
 
-`validate` returns `FormCraftValidationResponse<Value>`:
+`validate` returns `SAFormValidationResponse<Value>`:
 - `.success(value: Value)` — validation passed
-- `.failure(errors: FormCraftFailure)` — validation failed
+- `.failure(errors: SAFormFailure)` — validation failed
 
 ::: info
 `validate` is asynchronous.
@@ -62,7 +62,7 @@ You can extend existing rule types or create completely new ones.
 Example: check if email already exists in your backend.
 
 ```swift
-extension FormCraftStringValidation {
+extension SAFormStringValidation {
   func checkDuplicateEmail(
     message: LocalizedStringResource = "Email already exists"
   ) -> Self {
@@ -87,7 +87,7 @@ extension FormCraftStringValidation {
 Usage:
 
 ```swift
-let result = await FormCraftValidationRules()
+let result = await SAFormValidationRules()
   .string()
   .notEmpty()
   .email()
@@ -117,14 +117,14 @@ struct User: Sendable {
   let age: Int
 }
 
-extension FormCraftValidationRules {
+extension SAFormValidationRules {
   func userValidation() -> UserValidation {
     .init()
   }
 }
 
-struct UserValidation: FormCraftValidationTypeRules {
-  var rules: [(_ value: User) async -> FormCraftValidationResponse<User>] = []
+struct UserValidation: SAFormValidationTypeRules {
+  var rules: [(_ value: User) async -> SAFormValidationResponse<User>] = []
 
   func checkAge(message: LocalizedStringResource = "You must be over 21") -> Self {
     addRule { value in
@@ -153,7 +153,7 @@ struct UserValidation: FormCraftValidationTypeRules {
 Now use it like any built-in validator:
 
 ```swift
-await FormCraftValidationRules()
+await SAFormValidationRules()
   .userValidation()
   .checkAge()
   .checkFirstName()

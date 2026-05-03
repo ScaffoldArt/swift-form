@@ -10,7 +10,7 @@ Value must be `true`.
 - `message: LocalizedStringResource` – error message if the value is `false`
 
 ```swift
-let checked = FormCraftValidationRules()
+let checked = SAFormValidationRules()
   .boolean()
   .checked()
 
