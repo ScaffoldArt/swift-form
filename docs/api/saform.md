@@ -201,7 +201,9 @@ func setErrors<each Field: SAFormFieldConfigurable>(
 ```swift
 form.setErrors(
     (\.email, .init(["Email is already taken"])),
-    (\.password, .init(["Password is too weak"]))
+    (\.password, .init(["Password is too weak"])),
+    (\.billingAddress.street, .init(["Street is required"])),
+    (\.emergencyContacts[0].phone, .init(["Phone is invalid"]))
 )
 ```
 
@@ -230,7 +232,9 @@ func setErrors(
 form.setErrors(
     errors: [
         "email": ["Email is already taken"],
-        "password": ["Password is too weak"]
+        "password": ["Password is too weak"],
+        "billingAddress.street": ["Street is required"],
+        "emergencyContacts.[0].phone": ["Phone is invalid"]
     ]
 )
 ```

@@ -9,4 +9,5 @@ DerivedData/
 docs/docs
 docs/.vitepress/dist
 docs/.vitepress/cache
+docs/.temp
 docs/node_modules
