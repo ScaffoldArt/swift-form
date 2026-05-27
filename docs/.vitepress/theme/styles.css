@@ -114,6 +114,11 @@
     border-left: 2px solid var(--vp-c-divider);
   }
 
+  .api-reference-page .api-nested-prop-deep {
+    margin-left: 28px;
+    box-shadow: -12px 0 0 -10px var(--vp-c-divider);
+  }
+
   .api-reference-page .api-nested-prop code {
     color: var(--vp-c-text-2);
   }
