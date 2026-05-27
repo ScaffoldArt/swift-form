@@ -19,6 +19,20 @@ This example shows `refine`, where the form compares multiple values such as pas
 
 [Open Cross-Field Validation](/examples/cross-field-validation)
 
+## Nested Fields
+
+Use this when a form has several logical sections and flat fields become hard to scan.
+This example shows `SAFormGroup` with customer, shipping, and billing sections.
+
+[Open Nested Fields](/examples/nested-fields)
+
+## Dynamic Fields
+
+Use this when users can add, insert, remove, or clear repeated form sections.
+This example shows `SAFormCollection` with a passenger list and the collection APIs for changing it.
+
+[Open Dynamic Fields](/examples/dynamic-fields)
+
 ## Initial Values
 
 Use this when a form starts from existing data loaded from your backend.
