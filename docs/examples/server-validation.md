@@ -1,5 +1,7 @@
 # Server Validation
 
+This example shows an async field validation rule that first validates the email format locally, then checks the email on a server.
+
 ```swift
 import SwiftUI
 import SAForm
@@ -56,8 +58,11 @@ struct ServerValidationFormView: View {
     private func handleLogin(
         data: SAFormValidatedFields<LoginFormFields>
     ) async {
-        print(data.login)
-        print(data.password)
+        let login: String = data.login
+        let password: String = data.password
+
+        print(login)
+        print(password)
     }
 
     var body: some View {
@@ -75,7 +80,7 @@ struct ServerValidationFormView: View {
                             .foregroundStyle(.red)
                     }
 
-                    Text("Is validating: \(String(field.isValidation))")
+                    Text("Is validating: \(String(field.isValidating))")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -100,3 +105,8 @@ struct ServerValidationFormView: View {
     }
 }
 ```
+
+## Key Idea
+
+Validation rules are async, so they can call your backend.
+Run cheap local checks first, then call the server only after the value has already passed local validation.
