@@ -7,7 +7,7 @@ export default defineConfig({
   lang: 'en',
   description: "Build better forms with a simple and flexible validation library for Swift and SwiftUI",
   head: [
-    ['link', { rel: 'icon', type: 'image/png', href: '/scaffold-art-logo-icon.ico' }],
+    ['link', { rel: 'icon', type: 'image/x-icon', href: '/swift-form/scaffold-art-logo-icon.ico' }],
     ['meta', { name: 'theme-color', content: '#5f67ee' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: 'SAForm' }],
