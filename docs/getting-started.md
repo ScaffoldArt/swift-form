@@ -80,6 +80,10 @@ private struct LoginFields: SAFormFields {
 Each `SAFormField` stores the current raw value and an async validation rule.
 Validation rules run in order and can transform values before submit.
 
+::: info Note
+Validation is async, so checks can await server requests or other work without blocking the main thread.
+:::
+
 ### 2. Create Form State
 
 Create one `SAForm` instance and keep it in SwiftUI state:
