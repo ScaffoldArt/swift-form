@@ -1,5 +1,7 @@
 # Server Errors
 
+This example shows how to take field errors returned by an API and apply them to matching SAForm fields.
+
 ```swift
 import SwiftUI
 import SAForm
@@ -60,10 +62,13 @@ struct ServerErrorsFormView: View {
     private let playerService = PlayerRepository()
 
     private func handleSubmit(data: SAFormValidatedFields<FormFields>) async {
+        let firstName: String = data.firstName
+        let lastName: String = data.lastName
+
         let response = await playerService.updatePlayer(
             player: .init(
-                firstName: data.firstName,
-                lastName: data.lastName
+                firstName: firstName,
+                lastName: lastName
             )
         )
 
@@ -123,3 +128,8 @@ struct ServerErrorsFormView: View {
     }
 }
 ```
+
+## Key Idea
+
+Use `form.setErrors(errors:)` when your backend returns field-level validation errors.
+The dictionary keys should match generated field names, such as `"firstName"` or nested paths like `"profile.email"`.

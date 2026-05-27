@@ -1,5 +1,7 @@
 # Initial values
 
+This example shows how to load existing data, set it as the form default, and submit only later user changes.
+
 ```swift
 import SwiftUI
 import SAForm
@@ -43,10 +45,13 @@ struct InitialValuesFormView: View {
     private let playerService = PlayerService()
 
     private func updatePlayer(data: SAFormValidatedFields<FormFields>) async {
+        let firstName: String = data.firstName
+        let lastName: String = data.lastName
+
         await playerService.updatePlayer(
             player: .init(
-                firstName: data.firstName,
-                lastName: data.lastName
+                firstName: firstName,
+                lastName: lastName
             )
         )
     }
@@ -97,3 +102,8 @@ struct InitialValuesFormView: View {
     }
 }
 ```
+
+## Key Idea
+
+Use `setDefaultValues` after loading data from your backend.
+It updates both the current value and the dirty-state baseline, so fetched values do not count as user edits.

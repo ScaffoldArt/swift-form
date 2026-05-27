@@ -1,5 +1,7 @@
 # Login Form
 
+This example shows the smallest useful SAForm setup: define fields, bind them to SwiftUI controls, show errors, and submit typed validated data.
+
 ```swift
 import SwiftUI
 import SAForm
@@ -30,8 +32,11 @@ struct LoginFormView: View {
     private func handleLogin(
         data: SAFormValidatedFields<LoginFormFields>
     ) async {
-        print(data.login)
-        print(data.password)
+        let login: String = data.login
+        let password: String = data.password
+
+        print(login)
+        print(password)
     }
 
     var body: some View {
@@ -70,3 +75,8 @@ struct LoginFormView: View {
     }
 }
 ```
+
+## Key Idea
+
+`handleSubmit` validates every field before running `handleLogin`.
+Inside the submit closure, `data.login` and `data.password` are typed validated values.

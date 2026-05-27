@@ -1,11 +1,10 @@
+---
+pageClass: api-reference-page
+---
+
 # SAFormFields <Badge type="tip" text="Protocol" />
 
-`SAFormFields` defines a form schema used by [`SAForm`](/api/saform).
-Your fields type should conform to this protocol.
-
-In practice, you usually annotate your fields struct with `@SAForm`, and the required access methods are generated automatically.
-
-Example:
+Use `SAFormFields` to define the fields used by an `SAForm` instance.
 
 ```swift
 @SAForm
@@ -22,35 +21,77 @@ private struct LoginFields: SAFormFields {
 
 ## Methods
 
+Use these methods to expose field metadata and form-level validation.
+
 ### getAccessNames
+
+Returns field names mapped to field key paths.
 
 ```swift
 func getAccessNames() -> [String: PartialKeyPath<Self>]
 ```
 
-Returns mapping between field names and field key paths.
+#### Returns
+
+| Description | Type |
+| --- | --- |
+| Field names mapped to field key paths. | `[String: PartialKeyPath<Self>]` |
 
 ### getAccessOrder
+
+Returns field names in declaration order.
 
 ```swift
 func getAccessOrder() -> [String]
 ```
 
-Returns field names in declaration order.
+#### Returns
+
+| Description | Type |
+| --- | --- |
+| Field names in declaration order. | `[String]` |
+
+### getField
+
+Returns the field object at a key path.
+
+```swift
+func getField(by keyPath: PartialKeyPath<Self>) -> any SAFormFieldConfigurable
+```
+
+#### Parameters
+
+| Name | Description | Type |
+| --- | --- | --- |
+| `keyPath` | Field key path. | `PartialKeyPath<Self>` |
+
+#### Returns
+
+| Description | Type |
+| --- | --- |
+| Field object at the key path. | `any SAFormFieldConfigurable` |
 
 ### refine
+
+Runs form-level validation.
 
 ```swift
 func refine(form: SAForm<Self>) async -> [PartialKeyPath<Self>: SAFormFailure?]
 ```
 
-Performs form-level (cross-field) validation.
-- Key: field key path.
-- Value: `SAFormFailure?` (`nil` means no error for that field).
+#### Parameters
 
-If not implemented, default behavior returns no refine errors.
+| Name | Description | Type |
+| --- | --- | --- |
+| `form` | Form instance. | `SAForm<Self>` |
 
-Simple example:
+#### Returns
+
+| Description | Type |
+| --- | --- |
+| Field key paths mapped to optional errors. | `[PartialKeyPath<Self>: SAFormFailure?]` |
+
+#### Example
 
 ```swift
 @SAForm
@@ -75,58 +116,6 @@ private struct RegisterFields: SAFormFields {
         }
 
         return [:]
-    }
-}
-```
-
-Advanced async example (`async let`):
-
-```swift
-@SAForm
-private struct SignupFields: SAFormFields {
-    var email = SAFormField(value: "") { value in
-        await SAFormValidationRules()
-            .string()
-            .notEmpty()
-            .email()
-            .validate(value: value)
-    }
-
-    var username = SAFormField(value: "") { value in
-        await SAFormValidationRules()
-            .string()
-            .notEmpty()
-            .min(min: 3)
-            .validate(value: value)
-    }
-
-    func refine(form: SAForm<Self>) async -> [PartialKeyPath<Self>: SAFormFailure?] {
-        async let isEmailTaken = checkEmailTaken(email.value)
-        async let isUsernameTaken = checkUsernameTaken(username.value)
-
-        let (emailTaken, usernameTaken) = await (isEmailTaken, isUsernameTaken)
-
-        var failures: [PartialKeyPath<Self>: SAFormFailure?] = [:]
-
-        if emailTaken {
-            failures[\.email] = .init(["Email is already taken"])
-        }
-
-        if usernameTaken {
-            failures[\.username] = .init(["Username is already taken"])
-        }
-
-        return failures
-    }
-
-    private func checkEmailTaken(_ email: String) async -> Bool {
-        // API call
-        false
-    }
-
-    private func checkUsernameTaken(_ username: String) async -> Bool {
-        // API call
-        false
     }
 }
 ```

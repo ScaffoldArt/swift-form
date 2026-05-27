@@ -17,6 +17,10 @@ export default defineConfig({
 
   themeConfig: {
     logo: { src: '/scaffold-art-logo-min.png', width: 24, height: 24 },
+    outline: {
+      level: [2, 3],
+      label: 'On this page'
+    },
 
     // https://vitepress.dev/reference/default-theme-config
     nav: [
@@ -58,10 +62,10 @@ export default defineConfig({
         text: 'Examples',
         items: [
           { text: 'Login Form', link: '/examples/login-form' },
+          { text: 'Cross-Field Validation', link: '/examples/cross-field-validation' },
           { text: 'Initial Values', link: '/examples/initial-values' },
           { text: 'Server Errors', link: '/examples/server-errors'},
           { text: 'Server Validation', link: '/examples/server-validation' },
-          // { text: 'Cross-Field Validation', link: '/' },
         ]
       }
     ],
