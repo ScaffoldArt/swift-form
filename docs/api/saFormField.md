@@ -66,6 +66,10 @@ func validate() async -> SAFormFailure?
 let failure = await fields.email.validate()
 ```
 
+Use explicit generic types when the value bound to the UI is not the same type you want after validation.
+In the example below, `TextField` works with a `String`, but submit receives `age` as an `Int`.
+Writing `SAFormField<String, Int>` makes that conversion clear to Swift and keeps the validated submit data strongly typed.
+
 ## Example
 
 Create a sign-up form with an inferred string field and an explicit generic field.
@@ -131,7 +135,3 @@ struct SignUpView: View {
     }
 }
 ```
-
-Use explicit generic types when the value bound to the UI is not the same type you want after validation.
-In the example above, `TextField` works with a `String`, but submit receives `age` as an `Int`.
-Writing `SAFormField<String, Int>` makes that conversion clear to Swift and keeps the validated submit data strongly typed.

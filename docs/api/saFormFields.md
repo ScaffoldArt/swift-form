@@ -6,19 +6,6 @@ pageClass: api-reference-page
 
 Use `SAFormFields` to define the fields used by an `SAForm` instance.
 
-```swift
-@SAForm
-private struct LoginFields: SAFormFields {
-    var email = SAFormField(value: "") { value in
-        await SAFormValidationRules()
-            .string()
-            .notEmpty()
-            .email()
-            .validate(value: value)
-    }
-}
-```
-
 ## Methods
 
 Use these methods to expose field metadata and form-level validation.
@@ -91,7 +78,7 @@ func refine(form: SAForm<Self>) async -> [PartialKeyPath<Self>: SAFormFailure?]
 | --- | --- |
 | Field key paths mapped to optional errors. | `[PartialKeyPath<Self>: SAFormFailure?]` |
 
-#### Example
+## Example
 
 ```swift
 @SAForm

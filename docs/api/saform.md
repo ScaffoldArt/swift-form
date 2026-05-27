@@ -6,37 +6,6 @@ pageClass: api-reference-page saform-api-page
 
 Use `SAForm` to create a form instance from your field definitions and access form state, validation, errors, focus, and submit helpers.
 
-```swift{20}
-@SAForm
-private struct LoginFields: SAFormFields {
-    var email = SAFormField(value: "") { value in
-        await SAFormValidationRules()
-            .string()
-            .notEmpty()
-            .email()
-            .validate(value: value)
-    }
-
-    var password = SAFormField(value: "") { value in
-        await SAFormValidationRules()
-            .string()
-            .notEmpty()
-            .min(min: 8)
-            .validate(value: value)
-    }
-}
-
-@State private var form = SAForm(fields: LoginFields())
-
-Button("Submit", action: form.handleSubmit { data in
-    let email: String = data.email
-    let password: String = data.password
-
-    await login(email: email, password: password)
-})
-.disabled(form.formState.isSubmitting)
-```
-
 Initialize `SAForm` with a fields object. Pass `options` when you want to change form-level behavior.
 
 ```swift
@@ -366,4 +335,37 @@ form.handleSubmit { data in
     let email: String = data.email
     let password: String = data.password
 }
+```
+
+## Example
+
+```swift{20}
+@SAForm
+private struct LoginFields: SAFormFields {
+    var email = SAFormField(value: "") { value in
+        await SAFormValidationRules()
+            .string()
+            .notEmpty()
+            .email()
+            .validate(value: value)
+    }
+
+    var password = SAFormField(value: "") { value in
+        await SAFormValidationRules()
+            .string()
+            .notEmpty()
+            .min(min: 8)
+            .validate(value: value)
+    }
+}
+
+@State private var form = SAForm(fields: LoginFields())
+
+Button("Submit", action: form.handleSubmit { data in
+    let email: String = data.email
+    let password: String = data.password
+
+    await login(email: email, password: password)
+})
+.disabled(form.formState.isSubmitting)
 ```

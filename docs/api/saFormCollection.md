@@ -13,82 +13,6 @@ Each item keeps typed access to its nested fields while the collection manages t
 If you declare the item somewhere else and then use it inside the `@SAForm` type, the generated form accessors will not work.
 :::
 
-## Example
-
-Create a profile form where the user can add several emergency contacts.
-
-```swift{21}
-import SwiftUI
-
-@SAForm
-private struct ProfileFields: SAFormFields {
-    struct EmergencyContact: SAFormCollectionItem {
-        var name = SAFormField(value: "") { value in
-            await SAFormValidationRules()
-                .string()
-                .notEmpty()
-                .validate(value: value)
-        }
-
-        var phone = SAFormField(value: "") { value in
-            await SAFormValidationRules()
-                .string()
-                .notEmpty()
-                .validate(value: value)
-        }
-    }
-
-    var emergencyContacts = SAFormCollection { EmergencyContact() }
-}
-
-struct ProfileView: View {
-    @State private var form = SAForm(fields: ProfileFields())
-
-    var body: some View {
-        SAFormView(formConfig: form) {
-            VStack(spacing: 12) {
-                ForEach(form.fields.emergencyContacts.indices, id: \.self) { index in
-                    VStack(spacing: 8) {
-                        SAFormControllerView(formConfig: form, key: \.emergencyContacts[index].name) { value, field in
-                            TextField("Contact Name", text: value)
-
-                            if let firstError = field.errors?.messages.first {
-                                Text(firstError)
-                                    .foregroundStyle(.red)
-                            }
-                        }
-
-                        SAFormControllerView(formConfig: form, key: \.emergencyContacts[index].phone) { value, field in
-                            TextField("Phone", text: value)
-
-                            if let firstError = field.errors?.messages.first {
-                                Text(firstError)
-                                    .foregroundStyle(.red)
-                            }
-                        }
-
-                        Button("Remove Contact") {
-                            form.fields.emergencyContacts.remove(at: index)
-                        }
-                    }
-                }
-
-                Button("Add Contact") {
-                    form.fields.emergencyContacts.add()
-                }
-
-                Button("Save Profile", action: form.handleSubmit { data in
-                    let contacts = data.emergencyContacts
-
-                    await saveProfile(emergencyContacts: contacts)
-                })
-                .disabled(form.formState.isSubmitting)
-            }
-        }
-    }
-}
-```
-
 ```swift
 init(_ items: [Item] = [])
 init(_ itemFactory: @escaping () -> Item)
@@ -208,4 +132,80 @@ Removes all items.
 
 ```swift
 func removeAll()
+```
+
+## Example
+
+Create a profile form where the user can add several emergency contacts.
+
+```swift{21}
+import SwiftUI
+
+@SAForm
+private struct ProfileFields: SAFormFields {
+    struct EmergencyContact: SAFormCollectionItem {
+        var name = SAFormField(value: "") { value in
+            await SAFormValidationRules()
+                .string()
+                .notEmpty()
+                .validate(value: value)
+        }
+
+        var phone = SAFormField(value: "") { value in
+            await SAFormValidationRules()
+                .string()
+                .notEmpty()
+                .validate(value: value)
+        }
+    }
+
+    var emergencyContacts = SAFormCollection { EmergencyContact() }
+}
+
+struct ProfileView: View {
+    @State private var form = SAForm(fields: ProfileFields())
+
+    var body: some View {
+        SAFormView(formConfig: form) {
+            VStack(spacing: 12) {
+                ForEach(form.fields.emergencyContacts.indices, id: \.self) { index in
+                    VStack(spacing: 8) {
+                        SAFormControllerView(formConfig: form, key: \.emergencyContacts[index].name) { value, field in
+                            TextField("Contact Name", text: value)
+
+                            if let firstError = field.errors?.messages.first {
+                                Text(firstError)
+                                    .foregroundStyle(.red)
+                            }
+                        }
+
+                        SAFormControllerView(formConfig: form, key: \.emergencyContacts[index].phone) { value, field in
+                            TextField("Phone", text: value)
+
+                            if let firstError = field.errors?.messages.first {
+                                Text(firstError)
+                                    .foregroundStyle(.red)
+                            }
+                        }
+
+                        Button("Remove Contact") {
+                            form.fields.emergencyContacts.remove(at: index)
+                        }
+                    }
+                }
+
+                Button("Add Contact") {
+                    form.fields.emergencyContacts.add()
+                }
+
+                Button("Save Profile", action: form.handleSubmit { data in
+                    let contacts = data.emergencyContacts
+
+                    await saveProfile(emergencyContacts: contacts)
+                })
+                .disabled(form.formState.isSubmitting)
+            }
+        }
+    }
+}
 ```
