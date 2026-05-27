@@ -1,7 +1,5 @@
 # Getting Started
 
-This guide walks through a small SwiftUI login form. You will define typed fields, bind them to controls, show validation errors, and submit only validated data.
-
 ## Installation
 
 SAForm is distributed via Swift Package Manager (SPM).
@@ -26,11 +24,22 @@ https://github.com/ScaffoldArt/swift-form
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/ScaffoldArt/swift-form", from: "x.y.z")
+    .package(url: "https://github.com/ScaffoldArt/swift-form", from: "<latest-release>")
 ]
 ```
 
+Replace `<latest-release>` with the latest release version from GitHub.
+Swift Package Manager will then resolve the newest compatible release from that version requirement.
+
+::: tip Want to start faster?
+SAForm is small enough that you can often learn it by opening a working example first.
+If you want to copy a real SwiftUI form and adapt it right away, start with the [examples](/examples/) page.
+Each example focuses on one common workflow, so you can pick the closest one and use it as a starting point before reading the full guide.
+:::
+
 ## Create Your First Form
+
+This guide walks through a small SwiftUI login form. You will define typed fields, bind them to controls, show validation errors, and submit only validated data.
 
 Start by importing SwiftUI and SAForm:
 
